@@ -41,20 +41,11 @@ export function createRoutesInLayout(routes = []) {
         path: 'index',
         name: 'index',
         meta: {
+          title: '首页',
           auth: true
         },
         component: _import('system/index')
       },
-      // {
-      //     path: 'menu',
-      //     name: 'menu',
-      //     meta: {
-      //         title: '前端日志',
-      //         auth: true
-      //     },
-      //     component: _import('system/admin/menu')
-      // },
-      // 系统 前端日志
       {
         path: 'log',
         name: 'log',
@@ -64,22 +55,24 @@ export function createRoutesInLayout(routes = []) {
         },
         component: _import('system/log')
       },
-      // 刷新页面 必须保留
-      {
-        path: 'refresh',
-        name: 'refresh',
-        hidden: true,
-        component: _import('system/function/refresh')
-      },
-      // 页面重定向 必须保留
-      {
-        path: 'redirect/:route*',
-        name: 'redirect',
-        hidden: true,
-        component: _import('system/function/redirect')
-      }
+        // 刷新页面 必须保留
+        {
+          path: 'refresh',
+          name: 'refresh',
+          hidden: true,
+          component: _import('system/function/refresh')
+        },
+        // 页面重定向 必须保留
+        {
+          path: 'redirect/:route*',
+          name: 'redirect',
+          hidden: true,
+          component: _import('system/function/redirect')
+        }
     ]
-  }]
+  },
+  ...routes
+]
 }
 
 // 在 layout 之外显示的路由

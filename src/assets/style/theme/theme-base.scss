@@ -244,7 +244,7 @@
           height: 41px;
           // 多页面控制器
           .d2-multiple-page-control-group {
-            padding-right: 20px;
+            padding-right: 10px;
             .d2-multiple-page-control-content {
               overflow: auto;
               position: relative;
@@ -285,25 +285,47 @@
             .d2-container-full {
               position: absolute;
               top: 0px;
-              right: 20px;
+              right: 10px;
               bottom: 0px;
               left: 0px;
               display: flex;
               flex-direction: column;
               overflow: hidden;
               .d2-container-full__header {
-                padding: 20px;
+                padding: 10px 10px 0 10px;
               }
               .d2-container-full__body {
                 flex-grow: 1;
                 height: 100%;
-                padding: 20px 20px;
+                padding: 0;
                 overflow: auto;
                 position: relative;
               }
-              .d2-container-full__footer {
-                padding: 20px;
+              .el-container{
+                height: 100%;
               }
+              .d2-container-full__footer {
+                padding: 10px;
+              }
+              .el-header{
+                padding: 10px 10px 0 10px;
+                align-items: center;
+                display: flex;
+              }
+              .el-main{
+                padding: 0;
+              }
+              .el-footer{
+                padding: 10px;
+                align-items: center;
+                display: flex;
+              }
+              .el-form-item {
+                margin-bottom: 16px;
+            }
+            .el-table__header th{
+              background-color: #f8f8f9;
+            }
             }
             // 填充式布局组件 - 滚动优化
             .d2-container-full-bs {

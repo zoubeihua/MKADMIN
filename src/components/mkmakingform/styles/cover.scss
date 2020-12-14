@@ -1,0 +1,124 @@
+.el-radio + .el-radio {
+  margin-left: 0 !important;
+}
+.el-radio {
+  margin-right: 30px;
+}
+.el-checkbox + .el-checkbox {
+  margin-left: 0 !important;
+}
+.el-checkbox {
+  margin-right: 30px;
+}
+.el-form-item--small {
+  .el-radio {
+    line-height: 32px !important;
+  }
+
+  .el-checkbox {
+    line-height: 32px !important;
+  }
+
+  .el-rate {
+    margin-top: 6px;
+  }
+}
+.el-form-item--mini {
+  .el-radio {
+    line-height: 28px !important;
+  }
+
+  .el-checkbox {
+    line-height: 28px !important;
+  }
+
+  .el-rate {
+    margin-top: 4px;
+  }
+}
+.el-form-item--medium {
+  .el-radio {
+    line-height: 36px !important;
+  }
+
+  .el-checkbox {
+    line-height: 36px !important;
+  }
+
+  .el-rate {
+    margin-top: 8px;
+  }
+}
+.generateForm {
+  .el-date-editor.el-input, .el-date-editor.el-input__inner{
+    width: 100%;
+  }
+  .border-form {
+    border: 1px solid #dedede;
+    border-top: 0;
+    &:first-child{
+      border-top: 1px solid #dedede !important;
+    }
+    .el-form-item {
+      height: 100%;
+      .el-form-item__content {
+        height: 100%;
+        // border-left: 1px solid #ccc;
+        &::before {
+          width: 1px;
+          height: 99999999px;
+          background: #dedede !important;
+          display: block;
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+        }
+        .el-form-item__error {
+          left: 5px;
+        }
+      }
+    }
+    .el-form-item.no-label-form-item {
+      .el-form-item__content {
+        &::before {
+          background: transparent !important;
+        }
+      }
+    }
+
+    &.el-form--label-top {
+      .el-form-item__content {
+        &::before {
+          background: transparent;
+        }
+      }
+    }
+
+    .el-row + .el-row {
+      border-top: 1px solid #dedede;
+    }
+
+    .el-col + .el-col {
+      border-left: 1px solid #dedede;
+    }
+
+    .el-col {
+      overflow: hidden;
+      // padding-bottom: 6px;
+      padding-bottom: 0;
+    }
+    .el-col.colSpan {
+      padding-bottom: 0 !important;
+    }
+    .el-form-item__content {
+      // padding: 5px;
+      // padding-bottom: 0;
+    }
+
+    .el-form-item__label {
+      // padding: 5px;
+    }
+  }
+}

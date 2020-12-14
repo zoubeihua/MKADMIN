@@ -11,7 +11,9 @@ export default {
     // 侧边栏收缩
     asideCollapse: setting.menu.asideCollapse,
     // 侧边栏折叠动画
-    asideTransition: setting.menu.asideTransition
+    asideTransition: setting.menu.asideTransition,
+    //当前菜单数据
+		menuData: {}
   },
   actions: {
     /**
@@ -90,7 +92,54 @@ export default {
       }, { root: true })
       state.asideCollapse = menu.asideCollapse !== undefined ? menu.asideCollapse : setting.menu.asideCollapse
       state.asideTransition = menu.asideTransition !== undefined ? menu.asideTransition : setting.menu.asideTransition
-    }
+    },
+    /**
+		 * @description 用户点击当前菜单数据
+		 * @param {Object} context
+		 * @param {*} menuData menuData
+		 */
+		setMenuData({
+			state,
+			dispatch
+		}, menuData) {
+			return new Promise(async resolve => {
+				// store 赋值
+				state.menuData = menuData
+				// 持久化
+				await dispatch('d2admin/db/set', {
+					dbName: 'sys',
+					path: 'menu.menuData',
+					value: menuData,
+					user: true
+				}, {
+					root: true
+				})
+				// end
+				resolve()
+			})
+		},
+		/**
+		 * @description 从数据库取当前页面数据
+		 * @param {Object} context
+		 */
+		loadMenuData({
+			state,
+			dispatch
+		}) {
+			return new Promise(async resolve => {
+				// store 赋值
+				state.menuData = await dispatch('d2admin/db/get', {
+					dbName: 'sys',
+					path: 'menu.menuData',
+					defaultValue: {},
+					user: true
+				}, {
+					root: true
+				})
+				// end
+				resolve()
+			})
+		}
   },
   mutations: {
     /**

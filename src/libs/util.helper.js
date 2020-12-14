@@ -200,3 +200,5 @@ helper.getNumberOrZero  = function(value) {
   const result = toNumber(value)
   return isNaN(result) ? 0 : result
 }
+
+export default helper;

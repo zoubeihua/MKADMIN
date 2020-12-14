@@ -173,6 +173,7 @@ export default {
     }
   },
   mounted () {
+    console.log(JSON.stringify(this.opened))
     const el = document.querySelectorAll('.d2-multiple-page-sort .el-tabs__nav')[0]
     Sortable.create(el, {
       onEnd: (evt) => {

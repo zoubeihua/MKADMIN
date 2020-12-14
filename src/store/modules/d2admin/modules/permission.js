@@ -3,8 +3,8 @@ import { uniqueId, keys } from 'lodash'
 import utils from "@/libs/util.js";
 const _import = require('@/libs/util.import.' + process.env.NODE_ENV)
 import router, { createRoutesInLayout, routesOutLayout, resetRouter } from '@/router'
-
-export default context => {
+import layoutHeaderAside from '@/layout/header-aside'
+import api from '@/api'
   /**
    * 给菜单数据补充上 path 字段
    * https://github.com/d2-projects/d2-admin/issues/209
@@ -24,128 +24,104 @@ export default context => {
    * @param {Object} item 接口返回菜单中的一项原始数据
    */
   function hasRouteChildren (item = {}, keyname = 'children') {
-    return utils.helper.hasChildren(item, keyname) && item[keyname].reduce((count, menu) => menu.haschildren === 1 ? ++count : count, 0) > 0
+    return utils.helper.hasChildren(item, keyname)
+    //  && item[keyname].reduce((count, menu) => menu.haschildren == 1 ? ++count : count, 0) > 0
   }
   /**
    * @description 从接口返回的数据中计算出菜单
    * @param {Array} menuSource 接口返回的原始菜单数据
    */
   function getMenus (menuSource) {
-    /**
-     * @description 检验是否为合法菜单
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function isEffectiveMenu (sourceItem) {
-      if (sourceItem.target === 'button') return
-      if (sourceItem.title === '') return
-      return true
-    }
-    /**
-     * @description 依次处理原始数据，返回处理后的菜单
-     * @param {Array} menus 上次处理返回的结果
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function maker (menus, sourceItem) {
-      if (!isEffectiveMenu(sourceItem)) return menus
-      let menu = {}
-      menu.title = sourceItem.title
-      menu.icon = sourceItem.icon
-      menu.path = sourceItem.path
-      if (hasRouteChildren(sourceItem)) menu.children = sourceItem.children.reduce(maker, [])
-      menus.push(menu)
-      return menus
-    }
-    return menuSource.reduce(maker, [])
+  	const menus = menuSource.filter(item => {
+      if (item.target != 'button') {
+        if (item.children && item.children.length) {
+          item.children = getMenus(item.children)
+        }
+        return true
+      }
+    })
+    return menus
   }
   /**
    * @description 从接口返回的数据中计算出路由
    * @param {Array} menuSource 接口返回的原始菜单数据
    */
   function getRoutes (menuSource) {
-    /**
-     * @description 检验是否为合法路由
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function isEffectiveRoute (sourceItem) {
-      if (sourceItem.menu_type !== context.env.VUE_APP_DICT_MENU_TYPE_MENU) return
-      const sourceItemKeys = keys(sourceItem)
-      const hasAllRequiredProperties = [
-        'title',
-        'path',
-        'component'
-      ].reduce((res, keyname) => res && sourceItemKeys.includes(keyname) && sourceItem[keyname], true)
-      if (!hasAllRequiredProperties) return
-      return true
-    }
-    /**
-     * @description 检验是否已经注册过此路由
-     * @description 在 vue-router 中路由的 name 不允许重复
-     * @param {Array} registered 已经注册的路由
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function isUnregistered (registered, sourceItem) {
-      return !registered.find(item => item.title === sourceItem.title)
-    }
-    /**
-     * @description 依次处理原始数据，返回处理后的路由
-     * @param {Array} routes 上次处理返回的结果
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function maker (routes, sourceItem) {
-      if (hasRouteChildren(sourceItem)) {
-        // 有子菜单 递归获取所有子菜单的路由
-        routes = routes.concat(sourceItem.children.reduce(maker, []))
-      } else if (isEffectiveRoute(sourceItem) && isUnregistered(routes, sourceItem)) {
-        // https://github.com/d2-projects/d2-admin-xiya-go-cms/issues/25
-        try {
-          // 没有子菜单 并且这个路由没有被加入到动态路由列表 处理当前路由
-          let route = {
-            path: sourceItem.path,
-            name: sourceItem.name,
-            meta: {
-              title: sourceItem.name,
-              auth: sourceItem.auth == 'true' ? true : false,
-              cache: sourceItem.cache == 'true' ? true : false
-            },
-            component:_import(sourceItem.component)
-          }
-          routes.push(route)
-        } catch (error) {
-          utils.log.capsule('菜单', '文件不存在', 'danger')
-          utils.log.danger(error.message)
-        }
+    const accessedRouters =  menuSource.filter(route => {
+      route.meta.auth = route.meta.auth == 'true' ? true : false;
+      route.meta.cache = route.meta.cache == 'true' ? true : false;
+      if(route.target != 'button'){
+        if (route.component) {
+				  if (route.component === 'layoutHeaderAside') { //Layout组件特殊处理
+				    route.component = layoutHeaderAside
+				  } else {
+					  try {
+					    route.component = _import(route.component)
+					  } catch (e) {
+					    //TODO handle the exception
+					    route.component = _import('system/error/404')
+              utils.log.capsule('菜单', '文件不存在', 'danger')
+              utils.log.danger(e.message)
+					  }
+				  }
+				}
+        if (route.children && route.children.length) {
+				  route.children = getRoutes(route.children)
+				}
+        return true
+        
+      // try {
+      //   return {
+      //     ...route,
+      //     component: route.component === 'layoutHeaderAside' ? layoutHeaderAside :  _import(route.component),
+      //     ...meta ? {
+      //       auth:route.meta.auth == 'true' ? true : false,
+      //       cache:route.meta.cache == 'true' ? true : false
+      //     }:{},
+      //     ...e.children ? {
+      //       children: e.children.length &&  e.children.length > 0 ? getRoutes(e.children) : []
+      //     } : {}
+      //    }
+      // } catch (error) {
+      //   utils.log.capsule('菜单', '文件不存在', 'danger')
+      //   utils.log.danger(e.message)
+      //   return {
+      //     ...route,
+      //     component: route.component === 'layoutHeaderAside' ? layoutHeaderAside :  _import('system/error/404'),
+      //     ...meta ? {
+      //       auth:route.meta.auth == 'true' ? true : false,
+      //       cache:route.meta.cache == 'true' ? true : false
+      //     }:{},
+      //     ...e.children ? {
+      //       children: e.children.length &&  e.children.length > 0 ? getRoutes(e.children) : []
+      //     } : {}
+      //    }
+       
+      // }
       }
-      return routes
-    }
-    return menuSource.reduce(maker, [])
+    })
+    // console.log("asyncRouterMap_filter")
+		// console.log(accessedRouters)
+    return accessedRouters
   }
   /**
    * @description 从接口返回的数据中计算出权限列表
    * @param {Array} menuSource 接口返回的原始菜单数据
    */
   function getPermissions (menuSource) {
-    /**
-     * @description 检验是否为合法权限
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function isEffectivePermission (sourceItem) {
-      if (sourceItem.target !== 'button') return
-      if (sourceItem.perms === null || sourceItem.perms === '') return
-      return true
+    let list = [];
+    if(menuSource.length){
+      menuSource.forEach(item => {
+        if(item.buttonpermissions.length){
+          item.buttonpermissions.forEach(key => {
+            list.push(key.perms);
+          })
+        }
+      })
     }
-    /**
-     * @description 依次处理原始数据，返回处理后的权限列表
-     * @param {Array} permissions 上次处理返回的结果
-     * @param {Object} sourceItem 原始数据的一项
-     */
-    function maker (permissions, sourceItem) {
-      if (isEffectivePermission(sourceItem)) permissions.push(sourceItem.perms)
-      if (utils.helper.hasChildren(sourceItem)) permissions = permissions.concat(sourceItem.children.reduce(maker, []))
-      return permissions
-    }
-    return menuSource.reduce(maker, [])
+		return list;
   }
-  return {
+  export default  {
     namespaced: true,
     state: {
       // 是否已经加载
@@ -163,27 +139,21 @@ export default context => {
        */
       async load ({ state, rootState, commit, dispatch }, { focus = false, to = '', data }) {
         // 取消请求 - 没有登录
-        if (!data && !rootState.d2admin.user.isLogged) return
+        if (!data && !rootState.d2admin.user.info.userid) return
         // 取消请求 - 已经加载过动态路由
         if (!focus && state.isLoaded) return
-        let userInfo = await dispatch('d2admin/db/get',{
-            dbName: 'sys',
-            path: 'user.info',
-            defaultValue: {},
-            user: true
-          },{ root: true })
         // 获取接口原始数据
-        const source = data || await context.api.MENU_ALL({userid: userInfo.userid,tag: 0})
+        const source = data || await api.MENU_ALL({userid: rootState.d2admin.user.info.userid,tag: 0})
         // [ 权限 ] 计算权限列表
-        state.permissions = getPermissions(source)
+        state.permissions = getPermissions(source.dataButton)
         // [ 菜单 ] 计算菜单
-        const menus = supplementPath(getMenus(source))
+        const menus = supplementPath(getMenus(source.dataMenu))
         // [ 菜单 ] 设置顶栏菜单
-        commit('d2admin/menu/headerSet', menus, { root: true })
+        // commit('d2admin/menu/headerSet', menus, { root: true })
         // [ 菜单 ] 设置侧边栏菜单
         commit('d2admin/menu/asideSet', menus, { root: true })
         // [ 路由 ] 计算路由
-        const routes = createRoutesInLayout(getRoutes(source)).concat(routesOutLayout)
+        const routes = createRoutesInLayout(getRoutes(source.dataRoute)).concat(routesOutLayout)
         // [ 路由 ] 重新设置路由
         resetRouter(routes)
         // [ 路由 ] 重新设置多标签页池
@@ -218,4 +188,3 @@ export default context => {
       }
     }
   }
-}

@@ -260,6 +260,8 @@ module.exports = {
     // set alias
     config.resolve.alias
       .set('@.mobile', resolve('src.mobile'))
+      .set('@c', resolve('src/components'))
+      .set('@lib', resolve('src/libs'))
   },
   // 不输出 map 文件
   productionSourceMap: false,
