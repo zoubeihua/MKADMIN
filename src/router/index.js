@@ -80,6 +80,9 @@ export const routesOutLayout = [
   // 登录
   {
     path: '/login',
+    meta: {
+      title: '登录'
+    },
     name: 'login',
     component: _import('system/login')
   },
@@ -96,6 +99,11 @@ export const routesOutLayout = [
     path: '/application',
     name: 'application',
     component: _import('system/ApplicationView/index')
+  },
+  {
+    path: '/designer',
+    name: 'designer',
+    component: _import('system/designer/index')
   },
   { path: '*',name: '404',component: _import('system/error/404') }
 ]
@@ -135,9 +143,12 @@ export function resetRouter(routes = []) {
 router.beforeEach(async (to,from,next) => {
   // 进度条
   NProgress.start()
+ 
   try {
+    const token = util.cookies.get('token') //首页验证权限
+    const auth = util.cookies.get('auth')// 应用选择权限
     // 确认已经加载多标签页数据 https://github.com/d2-projects/d2-admin/issues/201
-    await store.dispatch('d2admin/page/isLoaded')
+    // await store.dispatch('d2admin/page/isLoaded')
     // 确认已经加载组件尺寸设置 https://github.com/d2-projects/d2-admin/issues/198
     await store.dispatch('d2admin/size/isLoaded')
     // 关闭搜索面板
@@ -154,6 +165,7 @@ router.beforeEach(async (to,from,next) => {
       } else {
         // 没有登录的时候跳转到登录界面
         // 携带上登陆成功之后需要跳转的页面完整路径
+        util.cookies.set('redirect',to.fullPath)
         next({
           name: 'login',
           query: {
@@ -164,8 +176,30 @@ router.beforeEach(async (to,from,next) => {
       
       }
     } else {
-      // 不需要身份校验 直接通过
-      next()
+      if (token && token !== 'undefined') {
+        // 将当前预计打开的页面完整地址临时存储 登录后继续跳转
+        // 这个 cookie(redirect) 会在登录后自动删除
+        util.cookies.set('redirect',to.fullPath)
+          if(from.name == 'index'){
+            if (token && token !== 'undefined') {
+              next(from.path,true);
+            }else{
+              next()
+            }
+          }else{
+            next()
+          }
+      }else{
+        if(from.name == 'application'){
+          if (auth && auth !== 'undefined') {
+            next(from.path,true);
+          } else {
+            next()
+          }
+        }else{
+          next()
+        }
+      }
     }
   } catch (error) {
     next(false)

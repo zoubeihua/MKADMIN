@@ -1,141 +1,486 @@
 <template>
-	<d2-container>
-		<SplitPane :min-percent="20" :default-percent="30" split="vertical">
-			<template slot="paneL">
-				<el-container>
-					<el-header>
-						<el-form :inline="true">
-						  <el-form-item>
-						    <el-input
-						      style="width:360px;"
-						      @keyup.enter.native="query"
-						      v-model="pager.condition"
-						      placeholder="按部门名称（首拼）查找"
-						    ></el-input>
-						  </el-form-item>
-						  <el-form-item>
-						    <el-button-group>
-						      <el-button type="primary" icon="el-icon-search" @click="query">查询</el-button>
-						     </el-button-group>
-						  </el-form-item>
-						</el-form>
-					</el-header>
-					<el-main style="padding: 0;">
-						<el-table
-						:data="dataTable"
-						stripe
-						border
-						highlight-current-row
-						height="100%">
-						<el-table-column label="部门信息列表" align="center">
-							<el-table-column label="部门ID"  show-overflow-tooltip prop="deptid">
-							</el-table-column>
-							<el-table-column label="上级部门"  show-overflow-tooltip prop="deptid">
-							</el-table-column>
-							<el-table-column label="部门名称"  show-overflow-tooltip prop="deptid">
-							</el-table-column>
-							</el-table-column>
-						</el-table>
-					</el-main>
-				</el-container>
-			</template>
-			<template slot="paneR">
-				<el-container>
-					<el-header>
-						<el-form :inline="true">
-						  <el-form-item>
-						    <el-input
-						      style="width:360px;"
-						      @keyup.enter.native="query"
-						      v-model="pager.condition"
-						      placeholder="按员工姓名（首拼）、联系电话查询"
-						    ></el-input>
-						  </el-form-item>
-						  <el-form-item>
-						    <el-button-group>
-						      <el-button type="primary" icon="el-icon-search" @click="query">查询</el-button>
-						      <el-button type="primary" icon="el-icon-upload2" @click="Import" >导入</el-button>
-						      <el-button type="primary" icon="el-icon-download" @click="Export">导出</el-button>
-						     </el-button-group>
-						  </el-form-item>
-						</el-form>
-					</el-header>
-					<el-main style="padding: 0;">
-						<el-table
-						:data="dataTable"
-						stripe
-						border
-						highlight-current-row
-						height="100%">
-						<el-table-column label="员工信息列表" align="center">
-							<el-table-column label="工号"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="姓名"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="性别"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="身份证号"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="出生日期"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="年龄"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="婚姻"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="联系电话"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="部门负责人"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="职务"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="所属部门"  show-overflow-tooltip prop="deptid">
-								</el-table-column>
-							</el-table-column>
-						</el-table>
-					</el-main>
-					<el-footer>
-						 <mk-page :pager="pager" @query="query" />
-					</el-footer>
-				</el-container>
-			</template>
-		</SplitPane>
-			<!-- 导入弹窗 -->
-			 <vxe-modal v-model="importVisible" destroy-on-close title="企业人员导入"  width="600" height="500">
-				<import-data @close="e => { importVisible = e}" ></import-data>
-			 </vxe-modal>
-	</d2-container>
+  <d2-container>
+    <mk-grid
+      :option.sync="gridOption"
+      :queryForm.sync="queryWidgetForm"
+      :addForm.sync="addWidgetForm"
+      :editForm.sync="modifyWidgetForm"
+      :toolButtos="toolButtos"
+      :operateBtn="operateBtn"
+      ref="mkGrid"
+      @toolbar-button-click="toolbarButtonClick"
+      url="/Publics/MemberManage/Portal/ExamMemberInfo"
+    >
+    </mk-grid>
+  </d2-container>
 </template>
 
 <script>
-	import importData from '../components/importData.vue'
-	export default {
-		components:{
-			importData
+import importData from "../components/importData.vue";
+export default {
+  components: {
+    importData,
+  },
+  data() {
+    return {
+      gridOption: {
+        rowId: "nomber",
+        columns: [
+          {
+            seq: null,
+            title: "全选",
+            width: "80",
+            visible: true,
+            resizable: null,
+            align: "left",
+            remoteSort: false,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            type: "checkbox",
+          },
+          {
+            seq: null,
+            title: "操作",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: false,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            fixed: "right",
+            slots: {},
+            field: "operate_id",
+          },
+          {
+            seq: null,
+            title: "工号",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "nomber",
+          },
+          {
+            seq: null,
+            title: "部门",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: true,
+            is_modify: null,
+            is_add: null,
+            fieldtype: "select",
+            slots: {},
+            field: "dept",
+          },
+          {
+            seq: null,
+            title: "姓名",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: true,
+            is_modify: null,
+            is_add: null,
+            fieldtype: "input",
+            slots: {},
+            field: "name",
+          },
+          {
+            seq: null,
+            title: "性别",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "sex",
+          },
+          {
+            seq: null,
+            title: "身份证",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "idcard",
+          },
+          {
+            seq: null,
+            title: "出生日期",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "csrq",
+          },
+          {
+            seq: null,
+            title: "年龄",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "age",
+          },
+          {
+            seq: null,
+            title: "婚姻",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "hy",
+          },
+          {
+            seq: null,
+            title: "联系电话",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "phone",
+          },
+          {
+            seq: null,
+            title: "预约套餐",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "yytc",
+          },
+          {
+            seq: null,
+            title: "预约日期",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "yyrq",
+          },
+          {
+            seq: null,
+            title: "部门负责人",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "bmfzr",
+          },
+          {
+            seq: null,
+            title: "职务",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "zw",
+          },
+          {
+            seq: null,
+            title: "所属部门",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "ssbm",
+          },
+          {
+            seq: null,
+            title: "预约状态",
+            width: null,
+            visible: false,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: true,
+            is_modify: null,
+            is_add: null,
+            fieldtype: "select",
+            slots: {},
+            field: "status",
+          },
+        ],
+		editRules: {},
+		checkboxConfig:{
+			trigger: 'row',
+			highlight: true, 
+			range: true
 		},
-		data(){
-			return {
-				importVisible:false,
-				dataTable:[],
-				pager:{
-					condition:"",
-					count: 0,
-					page: 1,
-					rows: 20
-				},
-			}
-		},
-		methods:{
-			query(){
-				
+        toolbarConfig: {
+          slots: { 
+			  buttons: "toolbar_buttons",
+			  tools:"toolbar_right" 
 			},
-			Import(){
-				this.importVisible = true;
-			},
-			Export(){
-				
-			},
-		}
+          perfect: true,
+          import: false,
+          export: true,
+          print: false,
+          refresh: true,
+          zoom: true,
+          custom: true,
+        },
+      },
+      queryWidgetForm: {
+        list: [
+          {
+            type: "select",
+            name: "部门",
+            icon: "icon-select",
+            options: {
+              defaultValue: "",
+              span: 8,
+              multiple: false,
+              disabled: false,
+              clearable: false,
+              placeholder: "",
+              required: false,
+              requiredMessage: "",
+              showLabel: true,
+              width: "100%",
+              options: [
+                { value: "Option 1" },
+                { value: "Option 2" },
+                { value: "Option 3" },
+              ],
+              remote: false,
+              remoteType: "option",
+              remoteOption: "",
+              filterable: false,
+              remoteOptions: [],
+              props: { value: "bzcode", label: "bzname" },
+              remoteFunc: "",
+              customClass: "",
+              labelWidth: 100,
+              isLabelWidth: false,
+              hidden: false,
+              dataBind: true,
+            },
+            key: "1608001468272_dept_query",
+            model: "dept",
+            rules: [],
+          },
+          {
+            type: "select",
+            name: "预约状态",
+            icon: "icon-select",
+            options: {
+              defaultValue: "",
+              span: 8,
+              multiple: false,
+              disabled: false,
+              clearable: false,
+              placeholder: "",
+              required: false,
+              requiredMessage: "",
+              showLabel: true,
+              width: "100%",
+              options: [
+                { value: "Option 1" },
+                { value: "Option 2" },
+                { value: "Option 3" },
+              ],
+              remote: false,
+              remoteType: "option",
+              remoteOption: "",
+              filterable: false,
+              remoteOptions: [],
+              props: { value: "bzcode", label: "bzname" },
+              remoteFunc: "",
+              customClass: "",
+              labelWidth: 100,
+              isLabelWidth: false,
+              hidden: false,
+              dataBind: true,
+            },
+            key: "1608001468272_status_query",
+            model: "status",
+            rules: [],
+          },
+          {
+            type: "input",
+            name: "姓名",
+            icon: "icon-input",
+            options: {
+              width: "100%",
+              span: 8,
+              defaultValue: "",
+              required: false,
+              requiredMessage: "",
+              dataType: "",
+              dataTypeCheck: false,
+              dataTypeMessage: "",
+              pattern: "",
+              patternCheck: false,
+              patternMessage: "",
+              placeholder: "",
+              customClass: "",
+              disabled: false,
+              labelWidth: 100,
+              isLabelWidth: false,
+              hidden: false,
+              dataBind: true,
+              showPassword: false,
+              remoteFunc: "",
+              remoteOption: "",
+            },
+            key: "1608001468272_name_query",
+            model: "name",
+            rules: [],
+          },
+        ],
+        config: {
+          labelWidth: 100,
+          labelPosition: "right",
+          size: "small",
+          customClass: "",
+          ui: "element",
+          layout: "horizontal",
+          labelCol: 3,
+          width: "100%",
+          hideLabel: false,
+          hideErrorMessage: false,
+        },
+      },
+      addWidgetForm: {
+        list: [],
+        config: {
+          labelWidth: 100,
+          labelPosition: "right",
+          size: "small",
+          customClass: "",
+          ui: "element",
+          layout: "horizontal",
+          labelCol: 3,
+          width: "100%",
+          hideLabel: false,
+          hideErrorMessage: false,
+        },
+      },
+      modifyWidgetForm: {
+        list: [],
+        config: {
+          labelWidth: 100,
+          labelPosition: "right",
+          size: "small",
+          customClass: "",
+          ui: "element",
+          layout: "horizontal",
+          labelCol: 3,
+          width: "100%",
+          hideLabel: false,
+          hideErrorMessage: false,
+        },
+      },
+      toolButtos: [{ code: "batchDel", name: "批量删除" }],
+	  operateBtn: ["edit", "del"],
+	//   importConfig:{
+	// 	  mode:'insert',
+	// 	  remote:true,
+		 
+
+	//   }
+    };
+  },
+  methods: {
+    toolbarButtonClick(code) {
+      switch (code) {
+        case "batchDel":
+          this.batchDel();
+          break;
+
+        default:
+          break;
+      }
+    },
+    //批量删除
+	batchDel() {},
+	beforeImportMethod(opt){
+		alert(1)
 	}
+  },
+};
 </script>
 
 <style>

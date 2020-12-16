@@ -159,7 +159,7 @@ import api from '@/api'
         // [ 路由 ] 重新设置多标签页池
         commit('d2admin/page/init', routes, { root: true })
         // [ 标签页 ] 重新计算多标签页数据
-        dispatch('d2admin/page/openedLoad', { filter: true }, { root: true })
+        // dispatch('d2admin/page/openedLoad', { filter: true }, { root: true })
         // [ 搜索 ] 初始化搜索数据
         commit('d2admin/search/init', menus, { root: true })
         // [ 路由 ] 重新访问

@@ -167,7 +167,13 @@ function createService() {
           // errorCreate(`${msg}`, code)
           return { code,msg,...dataAxios }
         // 根据需要添加其它判断 // 显示提示
-        default: throw new Error(`${response.data.msg}: ${response.config.url}`)
+        default: 
+          Message({
+            type: "error",
+            message: msg
+          })
+        // throw new Error(`${response.data.msg}: ${response.config.url}`)
+        break
       }
     },
     error => {
@@ -209,7 +215,7 @@ function createRequest(service) {
         Authorization: token,
         'Content-Type': _.get(config,'headers.Content-Type','application/json')
       },
-      timeout: 5000,
+      timeout: 300000,
       baseURL: process.env.VUE_APP_API,
       data: {}
     }

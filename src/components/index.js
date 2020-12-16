@@ -10,7 +10,7 @@ import MkTabsCrf from './mk-form/mk-tabs-crf'
 import mkMemberSelect from './mk-form/mk-member-select'
 import mkMemberSelectTable from './mk-form/mk-member-select-table'
 import mkIntro from './mk-custom-components/mk-intro/index.js' 
-
+import MkGrid from '@/components/mk-grid'
 // 注意 有些组件使用异步加载会有影响
 Vue.component('d2-container', d2Container)
 Vue.component('d2-container-frame', d2ContainerFrame)
@@ -38,3 +38,4 @@ Vue.component('MkTabsCrf', MkTabsCrf)
 Vue.component('mkMemberSelect', mkMemberSelect)
 Vue.component('mkMemberSelectTable', mkMemberSelectTable)
 Vue.component('mkEmpty', () => import('./mk-form/mk-empty/index.vue'))
+Vue.component('MkGrid', MkGrid)

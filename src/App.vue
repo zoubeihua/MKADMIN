@@ -53,4 +53,7 @@ export default {
 .tableBtn i.bianji {
   font-size: 16px;
 }
+.el-container{
+  height: 100% !important;
+}
 </style>

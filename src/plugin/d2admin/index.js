@@ -22,7 +22,9 @@ import pluginApi from '@/plugin/api'
 import pluginError from '@/plugin/error'
 import pluginLog from '@/plugin/log'
 import pluginOpen from '@/plugin/open'
-
+import '@/assets/style/font-awesome-4.7.0/css/font-awesome.min.css'
+import '@c/mk-form-making/FormMaking.css'
+import { MakingForm, GenerateForm} from '@c/mk-form-making/FormMaking.umd.js'
 import FormMaking from '@/components/mkmakingform/index'
 import mkImgPreview from '@/components/mk-form/mk-img-preview/index'
 import pluginPermission from '@/plugin/permission'
@@ -66,5 +68,8 @@ export default {
     Vue.use(mkImgPreview)
     
     Vue.use(pluginPermission)
+
+    Vue.component('mk-making-form', MakingForm)
+    Vue.component('mk-generate-form', GenerateForm)
   }
 }
