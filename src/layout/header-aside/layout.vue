@@ -11,20 +11,31 @@
           :class="{'logo-group': true, 'logo-transition': asideTransition}"
           :style="{width: asideCollapse ? asideWidthCollapse : asideWidth}"
           flex-box="0">
-          <img v-if="asideCollapse" :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/icon-only.png`">
-          <img v-else :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/all.png`">
+          <!-- <img v-if="asideCollapse" :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/icon-only.png`">
+          <img v-else :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/all.png`"> -->
         </router-link>
         <div class="toggle-aside-btn" @click="handleToggleAside" flex-box="0">
           <d2-icon name="bars"/>
         </div>
-        <d2-menu-header flex-box="1"/>
+       
+        <div flex="cross:center" class="d2-theme-header-menu" flex-box="1">
+          <div flex-box="1" flex="true" class="d2-theme-header-menu__content">
+            <div flex-box="0" class="d2-theme-header-menu__scroll" >
+              <div style="color:#BFCBD9;font-size:24px;">
+                {{info.appname}} 
+                {{info.wgname}}
+              </div>
+            </div>
+            </div>
+          </div>
+        <!-- <d2-menu-header flex-box="1"/> -->
         <!-- 顶栏右侧 -->
         <div class="d2-header-right" flex-box="0">
           <!-- 如果你只想在开发环境显示这个按钮请添加 v-if="$env === 'development'" -->
           <d2-header-search @click="handleSearchClick"/>
           <!-- <d2-header-log/> -->
           <d2-header-fullscreen/>
-          <d2-header-theme/>
+          <!-- <d2-header-theme/> -->
           <d2-header-size/>
           <!-- <d2-header-locales/> -->
           <!-- <d2-header-color/> -->
