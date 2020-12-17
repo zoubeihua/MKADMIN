@@ -9,7 +9,23 @@
 					  </el-header>
 					  <el-main style="padding:0 30px 0 30px;">
 						  <el-scrollbar style="height: 100%;">
-							  
+							<el-form label-width="80px">
+								  <el-form-item  label="TABLE接口" field="tableInterface" >
+									   <el-input placeholder="请输入TABLE接口" v-model="Interface.tableInterface">
+											<template slot="prepend">Http://</template>
+										</el-input>
+								  </el-form-item >
+								  <el-form-item  label="导入接口" field="importInterface"  v-if="toolbarRight.import == 1">
+									  <el-input v-model="Interface.importInterface"  placeholder="请输入导入接口">
+										<template slot="prepend">Http://</template>
+									</el-input>
+								  </el-form-item >
+								  <el-form-item label="导出接口" field="exportInterface"  v-if="toolbarRight.export == 1"  >
+									  <el-input v-model="Interface.exportInterface"  placeholder="请输入导出接口">
+										<template slot="prepend">Http://</template>
+									</el-input>
+								  </el-form-item >
+							  </el-form>
 						  </el-scrollbar>
 					  </el-main>
 				  </el-container>
@@ -54,7 +70,7 @@
 									   </vxe-radio-group>
 									</template>
 								</vxe-form-item>
-								<!-- <vxe-form-item title="是否添加刷新按钮" field="refresh" span="12" >
+								<vxe-form-item title="是否添加刷新按钮" field="refresh" span="12" >
 									<template v-slot>
 									   <vxe-radio-group v-model="toolData.refresh">
 										<vxe-radio label="1">是</vxe-radio>
@@ -62,7 +78,7 @@
 									   </vxe-radio-group>
 									</template>
 								</vxe-form-item>
-								<vxe-form-item title="是否添加最大化按钮" field="zoom" span="12" >
+								<!-- <vxe-form-item title="是否添加最大化按钮" field="zoom" span="12" >
 									<template v-slot>
 									   <vxe-radio-group v-model="toolData.zoom">
 										<vxe-radio label="1">是</vxe-radio>
@@ -160,7 +176,7 @@
 					import:"0",
 					export:"0",
 					print:"0",
-					refresh:"1",
+					refresh:"0",
 					zoom:"1",
 					custom:"1"
 				},
@@ -175,6 +191,11 @@
 					look:"0",
 					del:"0",
 				},
+				Interface:{
+					tableInterface:'',
+					importInterface:'',
+					exportInterface:'',
+				}
 			}
 		},
 		created(){
@@ -193,10 +214,11 @@
 						let data = res.data;
 						if(data.length == 0) return;
 						try {
-							let {toolData, operateData,toolbarRight} = JSON.parse(data[0].introinfo);
+							let {toolData, operateData,toolbarRight,Interface} = JSON.parse(data[0].introinfo);
 							this.toolData = toolData;
 							this.operateData = operateData;
 							this.toolbarRight = toolbarRight;
+							this.Interface = {...this.Interface,...Interface};
 						} catch (error) {
 							console.log(error)
 						}
@@ -210,13 +232,15 @@
 				let toolData = this.toolData;
 				let operateData = this.operateData;
 				let toolbarRight = this.toolbarRight;
+				let Interface = this.Interface;
 				let data = {
 					category:this.designerGrid.node.title + '_表格配置',
 					introid:this.designerGrid.node.menuid,
 					introinfo:{
 						toolData,
 						operateData,
-						toolbarRight
+						toolbarRight,
+						Interface
 					}
 				}
 				return this.MK.Request('/Publics/Common/Dic/IntroInfo', 'post', data)
@@ -231,6 +255,7 @@
 					perfect:true,
 				};
 				let toolbarRight = this.toolbarRight;
+				let Interface = this.Interface;
 				let toolButtos = [];
 				for(let key in this.toolData){
 					if(key == 'add'){
@@ -247,7 +272,8 @@
 				return {
 					toolbar,
 					toolButtos,
-					toolbarRight
+					toolbarRight,
+					Interface
 				}
 			},
 			getOperate(){
@@ -296,5 +322,6 @@
 	}
 </script>
 
-<style>
+<style scoped>
+
 </style>

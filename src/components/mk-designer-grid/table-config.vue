@@ -485,7 +485,7 @@
 							import:"0",
 							export:"0",
 							print:"0",
-							refresh:"1",
+							refresh:"0",
 							zoom:"1",
 							custom:"1"
 						};
@@ -500,15 +500,21 @@
 							export:"0",
 							print:"0",
 						}
+						let Interface = {
+							tableInterface:'',
+							importInterface:'',
+							exportInterface:'',
+						}
 						if(res.code == 0){
 							let data = res.data;
 							if(data.length == 0) return;
-							let { toolData:toolDatas, operateData:operateDatas,toolbarRight:toolbarRights } = JSON.parse(data[0].introinfo);
+							let { toolData:toolDatas, operateData:operateDatas,toolbarRight:toolbarRights,Interface:Interfaces } = JSON.parse(data[0].introinfo);
 							toolData = toolDatas;
 							operateData = operateDatas;
 							toolbarRight = toolbarRights;
+							Interface = Interfaces;
 							//生成工具栏数据
-							let toolBarDataJSON = {...this.getToolBar(toolData),toolbarRight};
+							let toolBarDataJSON = {...this.getToolBar(toolData),toolbarRight,Interface};
 							//工具栏右边
 							let toolbarRightDataJSON = toolbarRight;
 							//生成表格操作列数据

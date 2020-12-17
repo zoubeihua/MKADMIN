@@ -41,6 +41,13 @@ export default {
 
 <style lang="scss">
 @import "~@/assets/style/public-class.scss";
+@import "~@/assets/style/mkfont/mkfont.css";
+// @import "~@/assets/style/iconfont/iconfont.css";
+@media screen and (max-width: 750px) {
+  .el-message-box {
+    width: 60% !important;
+  }
+}
 .tableBtn {
   display: flex;
   align-items: center;

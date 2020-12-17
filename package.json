@@ -18,6 +18,7 @@
     "axios": "^0.19.0",
     "axios-mock-adapter": "^1.18.1",
     "better-scroll": "^1.15.2",
+    "citydata-cn": "^1.0.7",
     "clipboard": "^2.0.6",
     "clipboard-polyfill": "^2.8.6",
     "core-js": "^3.4.3",
@@ -31,6 +32,7 @@
     "highlight.js": "^10.0.2",
     "hotkeys-js": "^3.7.3",
     "js-cookie": "^2.2.1",
+    "jspdf": "^2.2.0",
     "lodash": "^4.17.20",
     "lowdb": "^1.0.0",
     "marked": "^1.0.0",
@@ -56,8 +58,11 @@
     "vue2-editor": "^2.10.2",
     "vuedraggable": "^2.24.3",
     "vuex": "^3.1.2",
-    "vxe-table": "^3.0.11",
-    "xe-utils": "^3.0.4"
+    "vxe-table": "^3.0.13",
+    "vxe-table-plugin-export-pdf": "^1.9.0",
+    "vxe-table-plugin-export-xlsx": "^2.0.6",
+    "xe-utils": "^3.0.4",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "@d2-projects/vue-filename-injector": "^1.1.0",

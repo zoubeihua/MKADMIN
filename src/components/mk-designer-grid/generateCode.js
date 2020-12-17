@@ -7,38 +7,46 @@ export default function(data,Template='default'){
 	const templateName = 'mk-grid';
 	if(Template == 'default'){
 		return `<template>
-			<el-container>
-				<el-main>
-					<mk-grid 
-						:option.sync="gridOption" 
-						:queryForm.sync="queryWidgetForm" 
-						:addForm.sync="addWidgetForm" 
-						:editForm.sync="modifyWidgetForm" 
-						:toolButtos="toolButtos" 
-						:toolbarRight="toolbarRight"
-						:operateBtn="operateBtn" 
-						ref="mkGrid">
-					</mk-grid>
-				</el-main>
-			</el-container>
+			<d2-container>
+				<mk-grid 
+					:option.sync="gridOption" 
+					:queryForm.sync="queryWidgetForm" 
+					:addForm.sync="addWidgetForm" 
+					:editForm.sync="modifyWidgetForm" 
+					:toolButtos="toolButtos" 
+					:toolbarRight="toolbarRight"
+					:parameter="parameter"
+					:url="Interface.tableInterface"
+					:importUrl="Interface.importInterface"
+					:exportUrl="Interface.exportInterface"
+					:operateBtn="operateBtn" 
+					ref="mkGrid">
+				</mk-grid>
+			</d2-container>
 		</template>	
 		<script>
-		import MkGrid from '@/components/mk-grid'
 		export default {
 			name:'',
-			components: {
-				MkGrid
-			},
 			data(){
 				return {
+					//table 配置项
 					gridOption:${JSON.stringify(data.gridOption)},
+					//table表格查询字段
 					queryWidgetForm:${JSON.stringify(data.queryWidgetForm)},
+					//弹窗新增数据
 					addWidgetForm:${JSON.stringify(data.addWidgetForm)},
+					//弹窗编辑数据
 					modifyWidgetForm:${JSON.stringify(data.modifyWidgetForm)},
+					//工具栏左侧自定义按钮
 					toolButtos:${JSON.stringify(data.toolButtos)},
+					//工具栏右侧自定义按钮目前只有导入 导出
 					toolbarRight:${JSON.stringify(data.toolbarRight)},
-					operateBtn:${JSON.stringify(data.operateBtn)}
-					
+					//table 行操作列按钮
+					operateBtn:${JSON.stringify(data.operateBtn)},
+					//table数据接口地址 导入 导出接口地址
+					Interface:${JSON.stringify(data.Interface)},
+					//附加参数
+					parameter:{},
 				}
 			},
 			computed: {
@@ -53,6 +61,9 @@ export default function(data,Template='default'){
 			},
 			created(){
 				// this.$refs.mkGrid.reload();
+			},
+			methods:{
+    
 			},
 			mounted(){
 				

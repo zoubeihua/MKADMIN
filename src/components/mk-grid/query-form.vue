@@ -1,6 +1,6 @@
 <template>
-	<div style="display: flex;position: relative;">
-		<div style="padding-right: 10px;" class="toolForm">
+	<div style="display: flex;position: relative;margin-top:5px;">
+		<div style="padding-right: 10px;flex:1;" class="toolForm">
 			<mk-generate-form
 			  :data="queryForm" 
 			  :value="editData" 
@@ -58,6 +58,7 @@
 		},
 		created() {
 			this.queryForm = this.grid.queryForm;
+			console.log(this.queryForm)
 		},
 		mounted(){
 			window.onresize = () => {
@@ -155,7 +156,7 @@
 		border-radius: 3px;
 	}
 .toolForm ::v-deep .fm-form-item .el-form-item{
-	    margin-bottom: 0 !important;
+	    margin-bottom: 5px !important;
 }
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;

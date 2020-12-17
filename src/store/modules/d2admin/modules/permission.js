@@ -20,14 +20,6 @@ import api from '@/api'
     }))
   }
   /**
-   * @description 检查一个菜单是否有子菜单
-   * @param {Object} item 接口返回菜单中的一项原始数据
-   */
-  function hasRouteChildren (item = {}, keyname = 'children') {
-    return utils.helper.hasChildren(item, keyname)
-    //  && item[keyname].reduce((count, menu) => menu.haschildren == 1 ? ++count : count, 0) > 0
-  }
-  /**
    * @description 从接口返回的数据中计算出菜单
    * @param {Array} menuSource 接口返回的原始菜单数据
    */
@@ -69,35 +61,6 @@ import api from '@/api'
 				  route.children = getRoutes(route.children)
 				}
         return true
-        
-      // try {
-      //   return {
-      //     ...route,
-      //     component: route.component === 'layoutHeaderAside' ? layoutHeaderAside :  _import(route.component),
-      //     ...meta ? {
-      //       auth:route.meta.auth == 'true' ? true : false,
-      //       cache:route.meta.cache == 'true' ? true : false
-      //     }:{},
-      //     ...e.children ? {
-      //       children: e.children.length &&  e.children.length > 0 ? getRoutes(e.children) : []
-      //     } : {}
-      //    }
-      // } catch (error) {
-      //   utils.log.capsule('菜单', '文件不存在', 'danger')
-      //   utils.log.danger(e.message)
-      //   return {
-      //     ...route,
-      //     component: route.component === 'layoutHeaderAside' ? layoutHeaderAside :  _import('system/error/404'),
-      //     ...meta ? {
-      //       auth:route.meta.auth == 'true' ? true : false,
-      //       cache:route.meta.cache == 'true' ? true : false
-      //     }:{},
-      //     ...e.children ? {
-      //       children: e.children.length &&  e.children.length > 0 ? getRoutes(e.children) : []
-      //     } : {}
-      //    }
-       
-      // }
       }
     })
     // console.log("asyncRouterMap_filter")
@@ -159,7 +122,7 @@ import api from '@/api'
         // [ 路由 ] 重新设置多标签页池
         commit('d2admin/page/init', routes, { root: true })
         // [ 标签页 ] 重新计算多标签页数据
-        // dispatch('d2admin/page/openedLoad', { filter: true }, { root: true })
+        dispatch('d2admin/page/openedLoad', { filter: true }, { root: true })
         // [ 搜索 ] 初始化搜索数据
         commit('d2admin/search/init', menus, { root: true })
         // [ 路由 ] 重新访问

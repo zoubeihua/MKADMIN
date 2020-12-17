@@ -4,6 +4,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 //VXE-Table
 import 'xe-utils'
 import VXETable from 'vxe-table'
+import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx'
+import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf'
 import 'vxe-table/lib/style.css'
 
 
@@ -16,7 +18,8 @@ import '@/components'
 import '@/assets/svg-icons'
 // 国际化
 import i18n from '@/i18n.js'
-
+// 省市区数据
+import countyData from '../../../node_modules/citydata-cn/county-data'
 // 功能插件
 import pluginApi from '@/plugin/api'
 import pluginError from '@/plugin/error'
@@ -32,8 +35,10 @@ export default {
   async install (Vue, options) {
     // 设置为 false 以阻止 vue 在启动时生成生产提示
     // https://cn.vuejs.org/v2/api/#productionTip
-     //VXE-Table
-     Vue.use(VXETable)
+    //VXE-Table
+    Vue.use(VXETable)
+    VXETable.use(VXETablePluginExportXLSX)
+    VXETable.use(VXETablePluginExportPDF)
     Vue.config.productionTip = false
     // 当前环境
     Vue.prototype.$env = process.env.NODE_ENV
@@ -51,6 +56,7 @@ export default {
     Vue.prototype.isLocalDrive = true;
     //调用本地拍照地址
     Vue.prototype.capImgURL = 'http://127.0.0.1:8055/CaptureImage';
+    Vue.prototype.$countyData = countyData
     //VXE模态窗口
     Vue.prototype.$XModal = VXETable.modal
     // Element

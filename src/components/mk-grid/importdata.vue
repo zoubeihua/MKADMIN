@@ -94,8 +94,12 @@
   <script>
 export default {
   name: "import-data",
+  props:{
+    url:''
+  },
   data() {
     return {
+      active:0,
       importModal: false,
       templateInfo: {
         schoolid: "",
@@ -103,9 +107,16 @@ export default {
       },
       schoolList: [],
       classList: [],
+      rules:{}
     };
   },
   methods: {
+    show(){
+      this.importModal = true;
+    },
+    handleImportStep(val){
+      this.active = val;
+    },
     handleChangeSchool(val) {
       this.templateInfo.classid = "";
       this.classByAccount_get(val);
@@ -125,10 +136,14 @@ export default {
     },
     // 上传文件
     httpRequest(data) {
+      if(this.url == ''){
+        this.$message.error("请配置导入接口");
+        return;
+      }
       console.log(data);
       const isXlsx =
         data.file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || "application/vnd.ms-excel";
       const isLt2M = data.file.size / 1024 / 1024 < 2;
       if (!isXlsx) {
         this.$message.error("只能上传xlsx文件!");
@@ -138,7 +153,7 @@ export default {
         // 转base64
         this.getBase64(data.file).then((resBase64) => {
           this.fileBase64 = resBase64.split(",")[1]; //直接拿到base64信息
-          this.MK.Request("/Publics/MemberManage/Student/Import", "post", {
+          this.MK.Request(this.url, "post", {
             xlsxBase64String: resBase64.split(",")[1],
           }).then((res) => {
             if (res.code == 0) {

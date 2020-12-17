@@ -82,12 +82,30 @@ module.exports = {
     publicPath: process.env.VUE_APP_PUBLIC_PATH || '/',
     disableHostCheck: process.env.NODE_ENV === 'development',
     proxy: {
-      '/': {
+      '/Publics': {
           // http://localhost:8088/ target: 'http://210.22.75.54:12014' 'https://210.22.75.54:12014' http://101.69.241.13:12015 https://crm.weilaihos.com:12015/,
           target: 'https://210.22.75.54:12014',
           changeOrigin: true,
           pathRewrite: {}
-      }
+      },
+      '/Hcrm': {
+        // http://localhost:8088/ target: 'http://210.22.75.54:12014' 'https://210.22.75.54:12014' http://101.69.241.13:12015 https://crm.weilaihos.com:12015/,
+        target: 'https://210.22.75.54:12014',
+        changeOrigin: true,
+        pathRewrite: {}
+    },
+    '/Images': {
+      // http://localhost:8088/ target: 'http://210.22.75.54:12014' 'https://210.22.75.54:12014' http://101.69.241.13:12015 https://crm.weilaihos.com:12015/,
+      target: 'https://210.22.75.54:12014',
+      changeOrigin: true,
+      pathRewrite: {}
+  },
+      '/api': {
+        // http://localhost:8088/ target: 'http://210.22.75.54:12014' 'https://210.22.75.54:12014' http://101.69.241.13:12015 https://crm.weilaihos.com:12015/,
+        target: 'https://api.xuliangzhan.com:10443',
+        changeOrigin: true,
+        pathRewrite: {}
+    }
    }
   },
   css: {

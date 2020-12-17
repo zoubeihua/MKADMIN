@@ -26,17 +26,20 @@
 			</template>
 		</vxe-grid>
 		<dialog-form ref="dialogForm"></dialog-form>
+		<import-data ref="ImportData" :url="importUrl"></import-data>
 	</div>
 </template>
 
 <script>
 	import QueryForm from './query-form.vue'
 	import DialogForm from './dialog-form.vue'
+	import ImportData from './importdata'
 	export default {
 		name: 'mk-grid',
 		components:{
 			QueryForm,
-			DialogForm
+			DialogForm,
+			ImportData
 		},
 		provide(){
 			return {
@@ -51,6 +54,18 @@
 			url: {
 				type: String,
 				default: ""
+			},
+			importUrl:{
+				type: String,
+				default: ""
+			},
+			exportUrl:{
+				type: String,
+				default: ""
+			},
+			parameter:{
+				type: Object,
+				default: () => {}
 			},
 			queryForm:{
 				type:Object,
@@ -207,9 +222,9 @@
 							tools:'toolbar_right'
 						},
 						perfect: true,
-						refresh: true,
+						refresh: false,
 						import: false,
-						export: false,
+						export: true,
 						print: false,
 						zoom: true,
 						custom: true
@@ -242,16 +257,16 @@
 					},
 					exportConfig: {
 
-						// type: 'xlsx',
-						// // 局部自定义类型
-						// types: ['xlsx'],
-						// // 自定义数据量列表
-						// modes: ['current', 'all']
 						type: 'xlsx',
-						remote: true,
-						exportMethod: this.exportMethod,
-						types: ['xlsx','pdf'],
-						modes: ['current',  'all']
+						// 局部自定义类型
+						types: ['xlsx'],
+						// 自定义数据量列表
+						modes: ['current', 'all']
+						// type: 'xlsx',
+						// remote: true,
+						// exportMethod: this.exportMethod,
+						// types: ['xlsx','pdf'],
+						// modes: ['current',  'all']
 					},
 					pagerConfig: {
 						layouts: ['Sizes', 'PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'FullJump', 'Total'],
@@ -292,8 +307,8 @@
 								queryParams['rows'] = page.pageSize;
 								deleteObjNull(queryParams)
 								console.log('------表格查询入参------')
-								console.log(queryParams)
-								return this.isTableData ? this.MK.Request(this.url, 'get', queryParams) : this.getData()
+								console.log(queryParams,form)
+								return this.isTableData ? this.MK.Request(this.url, 'get', {...queryParams,...this.parameter}) : this.getData()
 							},
 							delete: ({
 								body
@@ -320,7 +335,8 @@
 			
 			//刷新数据
 			reload(form){
-				this.$refs.xGrid.commitProxy('reload',form)
+				this.$refs.xGrid.commitProxy('query',form)
+				// this.$refs.xGrid.commitProxy('reload',form)
 				// this.$nextTick(() => {
 				// 	this.setRowDicVal();
 				// })
@@ -446,7 +462,9 @@
 			},
 			//导入
 			Import(){
-				
+				// this.$emit('importMethod')
+				this.$refs.ImportData.show()
+			
 			}
 		},
 		watch: {
@@ -472,5 +490,8 @@
 <style scoped>
 ::v-deep .vxe-tools--wrapper{
 	padding:0 12px !important;
+}
+::v-deep .vxe-grid .vxe-grid--toolbar-wrapper .vxe-toolbar{
+	height: auto !important;
 }
 </style>

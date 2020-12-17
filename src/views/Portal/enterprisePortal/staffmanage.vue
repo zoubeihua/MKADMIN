@@ -6,25 +6,25 @@
       :addForm.sync="addWidgetForm"
       :editForm.sync="modifyWidgetForm"
       :toolButtos="toolButtos"
+      :toolbarRight="toolbarRight"
+      :parameter="parameter"
+      :url="Interface.tableInterface"
+      :importUrl="Interface.importInterface"
+      :exportUrl="Interface.exportInterface"
       :operateBtn="operateBtn"
       ref="mkGrid"
-      @toolbar-button-click="toolbarButtonClick"
-      url="/Publics/MemberManage/Portal/ExamMemberInfo"
     >
     </mk-grid>
   </d2-container>
-</template>
-
-<script>
-import importData from "../components/importData.vue";
+</template>	
+		<script>
 export default {
-  components: {
-    importData,
-  },
+  name: "",
   data() {
     return {
+      //table 配置项
       gridOption: {
-        rowId: "nomber",
+        rowId: "jobno",
         columns: [
           {
             seq: null,
@@ -69,7 +69,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "nomber",
+            field: "jobno",
           },
           {
             seq: null,
@@ -84,7 +84,7 @@ export default {
             is_add: null,
             fieldtype: "select",
             slots: {},
-            field: "dept",
+            field: "orgdeptname",
           },
           {
             seq: null,
@@ -129,7 +129,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "idcard",
+            field: "idtype",
           },
           {
             seq: null,
@@ -144,7 +144,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "csrq",
+            field: "birthday",
           },
           {
             seq: null,
@@ -174,7 +174,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "hy",
+            field: "marriage",
           },
           {
             seq: null,
@@ -189,7 +189,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "phone",
+            field: "telno",
           },
           {
             seq: null,
@@ -249,7 +249,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "zw",
+            field: "position",
           },
           {
             seq: null,
@@ -281,27 +281,31 @@ export default {
             slots: {},
             field: "status",
           },
+          {
+            seq: null,
+            title: "联系邮箱",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            slots: {},
+            field: "email",
+          },
         ],
-		editRules: {},
-		checkboxConfig:{
-			trigger: 'row',
-			highlight: true, 
-			range: true
-		},
-        toolbarConfig: {
-          slots: { 
-			  buttons: "toolbar_buttons",
-			  tools:"toolbar_right" 
-			},
+        editRules: {},
+        toolbar: {
+          slots: { buttons: "toolbar_buttons", tools: "toolbar_right" },
           perfect: true,
-          import: false,
+          import: true,
           export: true,
           print: false,
-          refresh: true,
+          refresh: false,
           zoom: true,
           custom: true,
         },
       },
+      //table表格查询字段
       queryWidgetForm: {
         list: [
           {
@@ -338,7 +342,38 @@ export default {
               dataBind: true,
             },
             key: "1608001468272_dept_query",
-            model: "dept",
+            model: "orgid",
+            rules: [],
+          },
+          {
+            type: "input",
+            name: "姓名",
+            icon: "icon-input",
+            options: {
+              width: "100%",
+              span: 8,
+              defaultValue: "",
+              required: false,
+              requiredMessage: "",
+              dataType: "",
+              dataTypeCheck: false,
+              dataTypeMessage: "",
+              pattern: "",
+              patternCheck: false,
+              patternMessage: "",
+              placeholder: "",
+              customClass: "",
+              disabled: false,
+              labelWidth: 100,
+              isLabelWidth: false,
+              hidden: false,
+              dataBind: true,
+              showPassword: false,
+              remoteFunc: "",
+              remoteOption: "",
+            },
+            key: "1608001468272_name_query",
+            model: "condition",
             rules: [],
           },
           {
@@ -378,37 +413,6 @@ export default {
             model: "status",
             rules: [],
           },
-          {
-            type: "input",
-            name: "姓名",
-            icon: "icon-input",
-            options: {
-              width: "100%",
-              span: 8,
-              defaultValue: "",
-              required: false,
-              requiredMessage: "",
-              dataType: "",
-              dataTypeCheck: false,
-              dataTypeMessage: "",
-              pattern: "",
-              patternCheck: false,
-              patternMessage: "",
-              placeholder: "",
-              customClass: "",
-              disabled: false,
-              labelWidth: 100,
-              isLabelWidth: false,
-              hidden: false,
-              dataBind: true,
-              showPassword: false,
-              remoteFunc: "",
-              remoteOption: "",
-            },
-            key: "1608001468272_name_query",
-            model: "name",
-            rules: [],
-          },
         ],
         config: {
           labelWidth: 100,
@@ -423,6 +427,7 @@ export default {
           hideErrorMessage: false,
         },
       },
+      //弹窗新增数据
       addWidgetForm: {
         list: [],
         config: {
@@ -438,6 +443,7 @@ export default {
           hideErrorMessage: false,
         },
       },
+      //弹窗编辑数据
       modifyWidgetForm: {
         list: [],
         config: {
@@ -453,35 +459,45 @@ export default {
           hideErrorMessage: false,
         },
       },
-      toolButtos: [{ code: "batchDel", name: "批量删除" }],
-	  operateBtn: ["edit", "del"],
-	//   importConfig:{
-	// 	  mode:'insert',
-	// 	  remote:true,
-		 
-
-	//   }
+      //工具栏左侧自定义按钮
+      toolButtos: [],
+      //工具栏右侧自定义按钮目前只有导入 导出
+      toolbarRight: { import: "1", export: "1", print: "0" },
+      //table 行操作列按钮
+      operateBtn: ["edit", "del"],
+      //table数据接口地址 导入 导出接口地址
+      Interface: {
+        tableInterface: "/Publics/MemberManage/Portal/ExamMemberInfo",
+        importInterface: "/Publics/MemberManage/Portal/Import",
+        exportInterface: "",
+      },
+      //附加参数
+      parameter: {},
     };
   },
-  methods: {
-    toolbarButtonClick(code) {
-      switch (code) {
-        case "batchDel":
-          this.batchDel();
-          break;
-
-        default:
-          break;
-      }
-    },
-    //批量删除
-	batchDel() {},
-	beforeImportMethod(opt){
-		alert(1)
-	}
+  computed: {},
+  watch: {},
+  //如果页面有keep-alive缓存功能，这个函数会触发
+  activated() {},
+  created() {
+    // this.$refs.mkGrid.reload();
   },
+  methods: {},
+  mounted() {},
+  //生命周期 - 创建之前
+  beforeCreate() {},
+  //生命周期 - 挂载之前
+  beforeMount() {},
+  //生命周期 - 更新之前
+  beforeUpdate() {},
+  //生命周期 - 更新之后
+  updated() {},
+  //生命周期 - 销毁之前
+  beforeDestroy() {},
+  //生命周期 - 销毁完成
+  destroyed() {},
 };
 </script>
-
-<style>
+		<style scoped>
 </style>
+		

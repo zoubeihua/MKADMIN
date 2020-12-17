@@ -381,7 +381,7 @@ export default {
         routes.forEach(route => {
           if (route.children && route.children.length > 0) {
             push(route.children)
-          } else if (!route.hidden) {
+          } else if (!route.hidden && route.meta) {
             const { meta, name, path } = route
             pool.push({ meta, name, path })
           }

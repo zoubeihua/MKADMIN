@@ -1,11 +1,11 @@
 import { Message } from 'element-ui'
+import VXETable from 'vxe-table'
 import axios from 'axios'
 import Adapter from 'axios-mock-adapter'
 import _ from 'lodash'
 import qs from 'qs'
 import util from '@/libs/util'
 import store from '@/store'
-
 /**
  * @description 记录和显示错误
  * @param {Error} error 错误对象
@@ -30,6 +30,22 @@ function handleError(error) {
     type: 'error',
     duration: 5 * 1000
   })
+}
+//内存中正在请求的数量
+let loadingNum = 0;
+function startLoading() {
+  if (loadingNum == 0) {
+    VXETable.modal.message({ message: '加载中...', status: 'loading',id: 'loading',duration:-1,lockView:true })
+  }
+  //请求数量加1
+  loadingNum++;
+}
+function endLoading() {
+  //请求数量减1
+  loadingNum--
+  if (loadingNum <= 0) {
+    VXETable.modal.close("loading")
+  }
 }
 //删除空对象
 function removeEmptyObjects(obj) {
@@ -79,6 +95,7 @@ function createService() {
   // 请求拦截
   service.interceptors.request.use(
     config => {
+      startLoading()
       const data = store.state.d2admin;
       const userinfo = data.user.info;
       config.headers['Authorization'] = userinfo.accessToken;
@@ -104,12 +121,14 @@ function createService() {
     error => {
       // 发送失败
       console.log(error)
+      endLoading();
       return Promise.reject(error)
     }
   )
   // 响应拦截
   service.interceptors.response.use(
     response => {
+      endLoading();
       // http 状态码 200 情况
       // 根据 前后端约定的 response.data.code 判断接口是否请求成功
       // 例如 接口返回数据为
@@ -177,6 +196,7 @@ function createService() {
       }
     },
     error => {
+      endLoading();
       const status = _.get(error,'response.status')
       switch (status) {
         case 400: error.message = '请求错误'; break

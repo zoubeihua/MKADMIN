@@ -7,7 +7,7 @@
 			</el-button-group>
 		</el-header>
 		<el-main style="padding: 0;">
-			<mk-grid :option.sync="gridOption" :queryForm.sync="queryWidgetForm" :addForm.sync="addWidgetForm" :editForm.sync="modifyWidgetForm" :toolButtos="toolButtos" :toolbarRight="toolbarRight" :operateBtn="operateBtn" ref="mkGrid"></mk-grid>
+			<mk-grid :option.sync="gridOption" :queryForm.sync="queryWidgetForm" :url="Interface.tableInterface" :importUrl="Interface.importInterface" :exportUrl="Interface.exportInterface" :addForm.sync="addWidgetForm" :editForm.sync="modifyWidgetForm" :toolButtos="toolButtos" :toolbarRight="toolbarRight" :operateBtn="operateBtn" ref="mkGrid"></mk-grid>
 		</el-main>
 		<vxe-modal v-model="tableConfigModal" title="" width="600" fullscreen remember height="400" resize >
 			<template v-slot:title>
@@ -116,6 +116,11 @@
 					export:"0",
 					print:"0",
 				},
+				Interface:{
+					tableInterface:'',
+					importInterface:'',
+					exportInterface:'',
+				},
 				operateBtn:[],
 				gridOption:{
 					
@@ -206,6 +211,7 @@
 							let {gridOption,tableData, toolBarData,operateData,queryWidgetForm,addWidgetForm,modifyWidgetForm} = JSON.parse(data[0].introinfo);
 							this.toolButtos = toolBarData.toolButtos;
 							this.toolbarRight = toolBarData.toolbarRight;
+							this.Interface = toolBarData.Interface;
 							this.operateBtn = operateData.operateBtn;
 							this.queryWidgetForm = queryWidgetForm;
 							this.addWidgetForm = addWidgetForm;
@@ -339,6 +345,7 @@
 				res.toolbar = data.toolBarData.toolbar;
 				this.toolButtos = data.toolBarData.toolButtos;
 				this.toolbarRight = data.toolBarData.toolbarRight;
+				this.Interface = data.toolBarData.Interface;
 				this.operateBtn = data.operateData.operateBtn;
 				this.queryWidgetForm = data.queryWidgetForm;
 				this.addWidgetForm = data.addWidgetForm;
@@ -387,8 +394,10 @@
 					modifyWidgetForm:this.modifyWidgetForm,
 					toolButtos:this.toolButtos || [],
 					toolbarRight:this.toolbarRight || {},
+					Interface:this.Interface,
 					operateBtn:this.operateBtn || [],
 				}
+				console.log(data);
 				this.VueTemplate = generateCode(data);
 			},
 			templateChangeHandler(type){
@@ -398,6 +407,8 @@
 					addWidgetForm:this.addWidgetForm,
 					modifyWidgetForm:this.modifyWidgetForm,
 					toolButtos:this.toolButtos || [],
+					toolbarRight:this.toolbarRight || {},
+					Interface:this.Interface,
 					operateBtn:this.operateBtn || [],
 				}
 				switch(type){
