@@ -21,19 +21,21 @@
 			<!--自定义空数据模板-->
 			<template v-slot:empty>
 				<span style="color: red;">
-					<p>没有更多数据了！</p>
+					<p>没有更多数据了！{{value}}</p>
 				</span>
 			</template>
 		</vxe-grid>
 		<dialog-form ref="dialogForm"></dialog-form>
-		<import-data ref="ImportData" :url="importUrl"></import-data>
+		<import-data ref="ImportData" :parameter="importParame" :url="importUrl"></import-data>
 	</div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 	import QueryForm from './query-form.vue'
 	import DialogForm from './dialog-form.vue'
 	import ImportData from './importdata'
+import log from '@/libs/util.log'
 	export default {
 		name: 'mk-grid',
 		components:{
@@ -64,6 +66,10 @@
 				default: ""
 			},
 			parameter:{
+				type: Object,
+				default: () => {}
+			},
+			importParame:{
 				type: Object,
 				default: () => {}
 			},
@@ -169,7 +175,10 @@
 			},
 			newGridData(){
 				return {...this.gridData,...this.option};
-			}
+			},
+			 ...mapState('d2admin/size', [
+				'value'
+			])
 		},
 		data() {
 			// 去除对象空属性
@@ -192,10 +201,11 @@
 			    return _newPar;
 			};
 			return {
+				size:this.value,
 				dic: this.option.columns,
 				gridData: {
 					id: 'grid_' + new Date().getTime(), //唯一标识（被某些特定的功能所依赖）string
-					size: 'mini', //表格的尺寸 //medium, small, mini
+					size: this.size || 'mini', //表格的尺寸 //medium, small, mini
 					height: 'auto', //number | string   auto, %, px
 					align: 'left', //所有的列对齐方式 left（左对齐）, center（居中对齐）, right（右对齐）
 					stripe: true, //	是否带有斑马纹（需要注意的是，在可编辑表格场景下，临时插入的数据不会有斑马纹样式）
@@ -322,7 +332,7 @@
 			}
 		},
 		created() {
-			
+
 			// this.setRowDicVal();
 		},
 		updated(){
@@ -468,6 +478,12 @@
 			}
 		},
 		watch: {
+			value:{
+				immediate:true,
+				handler(val){
+					this.gridData.size = val;
+				}
+			},
 			gridData: {
 				deep: true,
 				handler(val) {

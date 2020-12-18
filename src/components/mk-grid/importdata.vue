@@ -95,7 +95,8 @@
 export default {
   name: "import-data",
   props:{
-    url:''
+    url:'',
+    parameter:{}
   },
   data() {
     return {
@@ -155,6 +156,7 @@ export default {
           this.fileBase64 = resBase64.split(",")[1]; //直接拿到base64信息
           this.MK.Request(this.url, "post", {
             xlsxBase64String: resBase64.split(",")[1],
+            ...this.parameter
           }).then((res) => {
             if (res.code == 0) {
               this.$message.success(`文件上传成功，${res.msg}`);
@@ -184,9 +186,7 @@ export default {
     handleDownloadTep() {
       this.$refs.importModal.validate(valid => {
         if (valid) {
-          this.MK.Request("/Publics/MemberManage/Student/Template", "get", {
-            orgid: this.templateInfo.schoolid,
-            orgdeptid: this.templateInfo.classid
+          this.MK.Request("/Publics/MemberManage/Portal/Template", "get", {
           }).then(res => {
             // 返回的base64转xlsx，创建a链接下载
             var raw = window.atob(res.result.xlsxBase64String);

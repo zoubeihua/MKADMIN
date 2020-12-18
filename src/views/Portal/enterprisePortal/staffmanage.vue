@@ -8,6 +8,7 @@
       :toolButtos="toolButtos"
       :toolbarRight="toolbarRight"
       :parameter="parameter"
+      :importParame="importParame"
       :url="Interface.tableInterface"
       :importUrl="Interface.importInterface"
       :exportUrl="Interface.exportInterface"
@@ -473,6 +474,11 @@ export default {
       },
       //附加参数
       parameter: {},
+      //导入附加参数
+      importParame:{     
+        orgid:9,
+        orgname:"测试单位体检20190805"
+      }
     };
   },
   computed: {},

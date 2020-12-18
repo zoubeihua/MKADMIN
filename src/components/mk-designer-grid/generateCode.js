@@ -16,6 +16,7 @@ export default function(data,Template='default'){
 					:toolButtos="toolButtos" 
 					:toolbarRight="toolbarRight"
 					:parameter="parameter"
+					:importParame="importParame"
 					:url="Interface.tableInterface"
 					:importUrl="Interface.importInterface"
 					:exportUrl="Interface.exportInterface"
@@ -47,6 +48,8 @@ export default function(data,Template='default'){
 					Interface:${JSON.stringify(data.Interface)},
 					//附加参数
 					parameter:{},
+					//导入附加参数
+					importParame:{}
 				}
 			},
 			computed: {
