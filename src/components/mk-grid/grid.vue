@@ -1,10 +1,10 @@
 <template>
 	<div style="height: 100%;overflow: hidden;">
-		<vxe-grid ref="xGrid" v-bind="newGridData">
+		<vxe-grid ref="xGrid" v-bind="newGridData" @cell-click="cellClick">
 			<!--将表单放在工具栏中-->
 			<template v-slot:toolbar_buttons>
-					<div style="display: flex;align-items: center;">
-						<query-form @query="reload" v-if="queryForm.list.length" style="margin-right: 10px;"></query-form>
+					<div style="display: flex;align-items: center;" class="toolbarFrom">
+						<slot name="toolbarLeft" />
 						<el-button v-for="(item,index) in toolButtos" :size="queryForm.config.size" :key="index" @click="toolbarButtonClick(item.code)">{{item.name}}</el-button>
 					</div>
 			</template>
@@ -25,7 +25,7 @@
 				</span>
 			</template>
 		</vxe-grid>
-		<dialog-form ref="dialogForm"></dialog-form>
+		<!-- <dialog-form ref="dialogForm"></dialog-form> -->
 		<import-data ref="ImportData" :parameter="importParame" :url="importUrl"></import-data>
 	</div>
 </template>
@@ -342,7 +342,9 @@ import log from '@/libs/util.log'
 			})
 		},
 		methods: {
-			
+			commitProxy(code){
+				this.$refs.xGrid.commitProxy(code)
+			},
 			//刷新数据
 			reload(form){
 				this.$refs.xGrid.commitProxy('query',form)
@@ -361,6 +363,10 @@ import log from '@/libs/util.log'
 			},
 			refreshColumn(){
 				this.$refs.xGrid.refreshColumn();
+			},
+			//单元格被单击
+			cellClick({row, rowIndex}){
+				this.$emit('cell-click',{row,rowIndex})
 			},
 			setRowDicVal(){
 				const n = JSON.parse(JSON.stringify(this.newGridData.columns));
@@ -464,7 +470,12 @@ import log from '@/libs/util.log'
 			},
 			//编辑
 			editRowEvent(row){
-				this.$refs.dialogForm.show('edit',row);
+				this.$emit('editRowEvent',row)
+				// this.$refs.dialogForm.show('edit',row);
+			},
+			//删除
+			removeRowEvent(row){
+				this.$emit('removeRowEvent',row)
 			},
 			//查看
 			lookRowEvent(row){
@@ -509,5 +520,11 @@ import log from '@/libs/util.log'
 }
 ::v-deep .vxe-grid .vxe-grid--toolbar-wrapper .vxe-toolbar{
 	height: auto !important;
+}
+.toolbarFrom{
+	padding: 5px 5px 0 5px;
+}
+::v-deep .toolbarFrom .el-form .el-form-item{
+	margin-bottom: 5px !important;
 }
 </style>

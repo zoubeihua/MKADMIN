@@ -125,6 +125,8 @@
 				gridOption:{
 					
 				},
+				//解决没有数据时，操作列 slot:{defalut:为空的问题}
+				cloneGridOption:{},
 				VueTemplate:'',
 			}
 		},
@@ -216,8 +218,10 @@
 							this.queryWidgetForm = queryWidgetForm;
 							this.addWidgetForm = addWidgetForm;
 							this.modifyWidgetForm = modifyWidgetForm;
-							this.gridOption = gridOption;
+							this.gridOption = gridOption
+							this.cloneGridOption = JSON.parse(JSON.stringify(gridOption))
 						}
+					
 					})
 				})
 				
@@ -266,7 +270,7 @@
 						//插槽
 						if(item.key == 'operate_id'){
 							config.slots = {
-								default: 'operate'
+								default: "operate"
 							}
 						}else{
 							config.slots = {
@@ -351,6 +355,7 @@
 				this.addWidgetForm = data.addWidgetForm;
 				this.modifyWidgetForm = data.modifyWidgetForm;
 				this.gridOption = res;
+				this.cloneGridOption = JSON.parse(JSON.stringify(res))
 				this.savePageOption(data);
 				
 			},
@@ -388,7 +393,7 @@
 			handleGenerateCode(){
 				this.codeVisible = true;
 				let data = {
-					gridOption:this.gridOption,
+					gridOption:this.cloneGridOption,
 					queryWidgetForm:this.queryWidgetForm,
 					addWidgetForm:this.addWidgetForm,
 					modifyWidgetForm:this.modifyWidgetForm,
@@ -397,7 +402,6 @@
 					Interface:this.Interface,
 					operateBtn:this.operateBtn || [],
 				}
-				console.log(data);
 				this.VueTemplate = generateCode(data);
 			},
 			templateChangeHandler(type){

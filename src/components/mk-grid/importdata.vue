@@ -2,8 +2,8 @@
   <vxe-modal
     v-model="importModal"
     title="导入"
-    width="800"
-    height="540"
+    width="500"
+    height="400"
     :show-footer="true"
   >
     <el-steps
@@ -22,7 +22,7 @@
         ref="importModal"
         label-width="60px"
       >
-        <el-form-item label="机构" prop="schoolid">
+        <!-- <el-form-item label="机构" prop="schoolid">
           <el-select
             style="width: 260px"
             placeholder="按机构查询"
@@ -53,7 +53,7 @@
               :value="item.orgid"
             />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button
             style="width: 260px; margin-left: 0px"
@@ -68,7 +68,7 @@
     <template v-if="active === 1">
       <el-upload
         class="upload-demo"
-        style="width: 380px; height: 300px; margin: 0 auto"
+        style="width: 380px; margin: 0 auto"
         drag
         action="#"
         :http-request="httpRequest"
