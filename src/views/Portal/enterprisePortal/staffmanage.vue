@@ -1,6 +1,6 @@
 <template>
   <d2-container>
-    <SplitPane :min-percent="20" :default-percent="70" split="vertical">
+    <SplitPane :min-percent="20" :default-percent="80" split="vertical">
       <template slot="paneL">
          <m-grid
         :option.sync="gridOption"
