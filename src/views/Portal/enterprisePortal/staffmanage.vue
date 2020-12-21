@@ -17,11 +17,57 @@
         :operateBtn="operateBtn"
         @editRowEvent="editRowEvent"
         @removeRowEvent="removeRowEvent"
-        @cell-click="cellClick"
+        @toolbar-button-click="toolbarButtonClick"
+        @cell-dbclick="cellDbClick"
         ref="mkGrid"
     >
     <template slot="toolbarLeft">
-      <el-form :inline="true" >
+      <query-form @query="reload" @reset="reset">
+         <el-form :inline="true" >
+            <el-form-item label="">
+            <mk-select
+            placeholder="请选择部门"
+              v-model="parameter.deptname"
+              :multiple="true"
+              @change="reload"
+              url="/Publics/MemberManage/Portal/PortalDeptInfo_get"
+              :param="{orgid:parameter.orgid}"
+              label="deptname"
+              val="deptname"
+              filter="deptname"
+          >
+        </mk-select>
+        </el-form-item>
+        <el-form-item label="">
+           <mk-select
+              placeholder="请选择职务"
+              v-model="parameter.position"
+              :multiple="true"
+              @change="reload"
+              url="/Publics/MemberManage/Portal/PortalPositionInfo_get"
+              :param="{orgid:parameter.orgid}"
+              label="position"
+              val="position"
+              filter="position"
+          >
+        </mk-select>
+        </el-form-item>
+         <el-form-item label="">
+           <mk-select
+           placeholder="请选择在职状态"
+              v-model="parameter.jobstatus"
+              :multiple="true"
+              @change="reload"
+             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
+              label="statusname"
+              val="status"
+              filter="statusname"
+          >
+        </mk-select>
+        </el-form-item>
+         </el-form>
+       <template slot="detail">
+         <el-form :inline="true" >
         <el-form-item label="">
             <mk-select
             placeholder="请选择部门"
@@ -39,7 +85,7 @@
         <el-form-item label="">
            <mk-select
             placeholder="请选择职务"
-              v-model="parameter.jobstatus"
+              v-model="parameter.position"
               :multiple="true"
               @change="reload"
              :datas="[{position:'家属'},{position:'CTO'},{position:'CEO'}]"
@@ -52,7 +98,7 @@
          <el-form-item label="">
            <mk-select
            placeholder="请选择在职状态"
-              v-model="parameter.status"
+              v-model="parameter.jobstatus"
               :multiple="true"
               @change="reload"
              :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
@@ -77,15 +123,15 @@
         </mk-select>
         </el-form-item>
         <el-form-item >
-             <el-input-number v-model="parameter.examcount" placeholder="体检次数大于" controls-position="right" @change="reload" :min="null"></el-input-number>
+             <el-input-number v-model="parameter.examcount" placeholder="体检次数大于" controls-position="right" @change="reload" :min="0"></el-input-number>
         </el-form-item>
          <el-form-item >
-           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="reload">查询</el-button>
+           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:300px;"></el-input>
         </el-form-item>
       </el-form>
+       </template>
+      </query-form>
+      
     </template>
      
     </m-grid>
@@ -164,29 +210,12 @@
           </vxe-form-item>
           <vxe-form-item title="员工部门" field="name" span="8" >
             <template v-slot>
-               <mk-select
-              placeholder="请选择部门"
-              v-model="modifyWidgetForm.orgdeptname"
-              url="/Publics/MemberManage/Portal/PortalDeptInfo_get"
-              :param="{orgid:parameter.orgid}"
-              label="deptname"
-              val="deptname"
-              filter="deptname"
-          >
-        </mk-select>
+              <el-input v-model="modifyWidgetForm.orgdeptname"  placeholder="请输入员工部门" />
             </template>
           </vxe-form-item>
            <vxe-form-item title="员工职务" field="name" span="8" >
             <template v-slot>
-              <mk-select
-            placeholder="请选择职务"
-              v-model="modifyWidgetForm.position"
-             :datas="[{position:'家属'},{position:'CTO'},{position:'CEO'}]"
-              label="position"
-              val="position"
-              filter="position"
-          >
-        </mk-select>
+              <el-input v-model="modifyWidgetForm.position"  placeholder="请输入员工职务" />
             </template>
           </vxe-form-item>
            <vxe-form-item title="在职状态" field="name" span="8" >
@@ -202,10 +231,20 @@
         </mk-select>
             </template>
           </vxe-form-item>
+           <vxe-form-item title="电子邮箱" field="name" span="24" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.email"  placeholder="请输入电子邮箱" />
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="联系地址" field="name" span="24" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.addr"  placeholder="请输入联系地址" />
+            </template>
+          </vxe-form-item>
           <vxe-form-item align="center" span="24">
             <template v-slot>
               <vxe-button  status="primary" @click="submit">提交</vxe-button>
-              <vxe-button>取消</vxe-button>
+              <vxe-button @click="editModel = false">取消</vxe-button>
             </template>
           </vxe-form-item>
         </vxe-form>
@@ -217,10 +256,18 @@
 		<script>
     import { mapState } from 'vuex'
     import MGrid from "@/components/mk-grid/grid"
+    import QueryForm from "@/components/mk-grid/queryform"
+    import { isArray } from 'xe-utils';
 export default {
   name: "",
   components:{
-    MGrid
+    MGrid,
+    QueryForm
+  },
+  provide(){
+    return {
+      grid:this
+    }
   },
   data() {
     return {
@@ -492,7 +539,10 @@ export default {
       //当前点击row数据
       curClickRow:{},
       //工具栏左侧自定义按钮
-      toolButtos: [],
+      toolButtos: [{
+        code:'delAll',
+        name:'批量删除'
+      }],
       //工具栏右侧自定义按钮目前只有导入 导出
       toolbarRight: { import: "1", export: "1", print: "0" },
       //table 行操作列按钮
@@ -511,7 +561,7 @@ export default {
         jobstatus:[],
         position:[],
         family:[],
-        examcount:' ',
+        examcount:0,
         condition:'',
         hospitalid:''
       },
@@ -543,11 +593,32 @@ export default {
     reload(){
       this.$refs.mkGrid.commitProxy('query');
     },
+    //重置
+    reset(){
+      this.parameter = {
+        orgid:9,
+        contractid:7,
+        deptname:[],
+        jobstatus:[],
+        position:[],
+        family:[],
+        examcount:0,
+        condition:'',
+        hospitalid:''
+      };
+      this.$nextTick(() => {
+        this.reload();
+      })
+    },
     deptChange(){
       this.reload();
     },
     editRowEvent(row){
       this.curClickRow= row;
+      this.modifyWidgetForm.memberid = row.memberid;
+      this.modifyWidgetForm.email = row.email;
+      this.modifyWidgetForm.addr = row.address;
+      this.modifyWidgetForm.memberfilesno = row.memberfilesno;
       this.modifyWidgetForm.marriage = row.marriage.toString();
       this.modifyWidgetForm.hispatid = row.hispatid;
       this.modifyWidgetForm.jobno = row.jobno;
@@ -561,14 +632,14 @@ export default {
       },3000)
     },
     removeRowEvent(row){
-      console.log(row);
+      this.del(row)
     },
     //
     checkMethod({row}){
        return row.examcount == 0;
     },
-    //左边table单击事件
-    cellClick({row}){
+    //左边table双击事件
+    cellDbClick({row}){
       this.ExamMemberExamInfo_get(row);
     },
     //企业Portal获取企业员工所有体检信息
@@ -580,11 +651,53 @@ export default {
         }
       })
     },
+    toolbarButtonClick(code){
+      switch (code) {
+        case 'delAll':
+            this.delAll();
+          break;
+        default:
+          break;
+      }
+    },
+    //删除
+    delAll(){
+       let getCheckboxRecords = this.$refs.mkGrid.xGrid().getCheckboxRecords();
+       if(getCheckboxRecords.length == 0){
+        this.$XModal.message({ message: '请至少选择一条记录！', status: 'warning' });
+        return
+       }
+        this.del(getCheckboxRecords);
+    },
+    del(row){
+       this.$XModal.confirm('您确定要删除吗？').then(type => {
+         if(type == 'confirm'){
+            let rows = {
+              orgid:this.parameter.orgid,
+              memberdelmx:[],
+          }
+          if(isArray(row)){
+            rows.memberdelmx = row;
+          }else{
+            rows.memberdelmx.push(row)
+          }
+          this.MK.Request('/Publics/MemberManage/Portal/PortalDeleteMember_Post', 'post', rows)
+          .then( res => {
+            if(res.code == 0){
+              this.$XModal.message({ message: '删除成功', status: 'success ' });
+              this.reload();
+            }
+          })
+         }
+      });
+    },
+    //企业员工修改
     submit(){
-       this.MK.Request('/Publics/MemberManage/Portal/PortalMemberStatus', 'post', this.modifyWidgetForm)
+       this.MK.Request('/Publics/MemberManage/Portal/PortalMemberEdit', 'post', this.modifyWidgetForm)
       .then(res => {
         if(res.code == 0){
-         
+          this.editModel = false;
+          this.reload();
         }
       })
     }

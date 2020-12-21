@@ -1,11 +1,11 @@
 <template>
 	<div style="height: 100%;overflow: hidden;">
-		<vxe-grid ref="xGrid" v-bind="newGridData" @cell-click="cellClick">
+		<vxe-grid ref="xGrid" v-bind="newGridData" @cell-click="cellClick" @cell-dblclick="cellDblclick">
 			<!--将表单放在工具栏中-->
 			<template v-slot:toolbar_buttons>
 					<div style="display: flex;align-items: center;" class="toolbarFrom">
 						<slot name="toolbarLeft" />
-						<el-button v-for="(item,index) in toolButtos" :size="queryForm.config.size" :key="index" @click="toolbarButtonClick(item.code)">{{item.name}}</el-button>
+						<el-button v-for="(item,index) in toolButtos" :key="index" @click="toolbarButtonClick(item.code)">{{item.name}}</el-button>
 					</div>
 			</template>
 			<!--工具栏右边按钮-->
@@ -342,6 +342,9 @@ import log from '@/libs/util.log'
 			})
 		},
 		methods: {
+			xGrid(){
+				return this.$refs.xGrid
+			},
 			commitProxy(code){
 				this.$refs.xGrid.commitProxy(code)
 			},
@@ -367,6 +370,10 @@ import log from '@/libs/util.log'
 			//单元格被单击
 			cellClick({row, rowIndex}){
 				this.$emit('cell-click',{row,rowIndex})
+			},
+			//单元格被双击
+			cellDblclick({row, rowIndex}){
+				this.$emit('cell-dbclick',{row,rowIndex})
 			},
 			setRowDicVal(){
 				const n = JSON.parse(JSON.stringify(this.newGridData.columns));
@@ -522,7 +529,7 @@ import log from '@/libs/util.log'
 	height: auto !important;
 }
 .toolbarFrom{
-	padding: 5px 5px 0 5px;
+	/* padding: 5px 5px 0 0px; */
 }
 ::v-deep .toolbarFrom .el-form .el-form-item{
 	margin-bottom: 5px !important;

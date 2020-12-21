@@ -1,374 +1,675 @@
 <template>
-	<d2-container>
-		<SplitPane :min-percent="20" :default-percent="30" split="vertical">
-			<template slot="paneL">
-				<el-container>
-					<el-main style="background-color: #fafafa;">
-						<el-form label-width="auto">
-							<el-form-item label="选择部门">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="请选择部门"></el-input>
-							</el-form-item>
-							<el-form-item label="年度体检">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="请选择年度体检"></el-input>
-							</el-form-item>
-							<el-form-item label="选择职务">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="请选择职务"></el-input>
-							</el-form-item>
-							<el-form-item label="年龄范围">
-								<range-input v-model="form.agerange"></range-input>
-							</el-form-item>
-							<el-form-item label="选择性别">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="请选择性别"></el-input>
-							</el-form-item>
-							<el-form-item label="已选套餐">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="请选择套餐"></el-input>
-							</el-form-item>
-							<el-form-item label="套餐状态">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="请选择套餐状态"></el-input>
-							</el-form-item>
-							<el-form-item label="预约日期">
-								<el-date-picker style="width: 100%;" value-format="yyyy-MM-dd" v-model="daterange" type="daterange" align="right"
-								 unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions"></el-date-picker>
-							</el-form-item>
-							<el-form-item label="模糊查询">
-								<el-input @keyup.enter.native="query" v-model="form.condition" placeholder="按姓名(首拼)、电话查询"></el-input>
-							</el-form-item>
-							<el-form-item label="预约通知">
-								<el-radio-group v-model="form.tip">
-									<el-radio :label="1">是</el-radio>
-									<el-radio :label="0">否</el-radio>
-								</el-radio-group>
-							</el-form-item>
-							<el-form-item>
-								<el-button type="primary" @click="query">查询</el-button>
-							</el-form-item>
-						</el-form>
-					</el-main>
-				</el-container>
-			</template>
-			<template slot="paneR">
-				<el-container>
-					<el-header>
-						<el-button-group>
-							<el-button type="primary" @click="add">添加套餐</el-button>
-							<el-button type="primary" @click="edit">修改套餐</el-button>
-							<el-button type="primary" @click="editKeep">修改预约</el-button>
-							<el-button type="primary">发送预约消息</el-button>
-							<el-button type="primary" icon="el-icon-download" @click="Export">导出</el-button>
-						</el-button-group>
-					</el-header>
-					<el-main style="padding: 0;">
-						<el-table :data="dataTable" stripe border highlight-current-row height="100%">
-							<el-table-column label="工号" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="姓名" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="性别" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="身份证号" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="出生日期" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="年龄" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="联系电话" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="职务" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="已选套餐" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="预约日期" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="体检状态" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-							<el-table-column label="付款状态" sortable show-overflow-tooltip prop="deptid"></el-table-column>
-						</el-table>
-					</el-main>
-				</el-container>
-			</template>
-		</SplitPane>
-		<!-- 套餐 -->
-		<vxe-modal v-model="addPackageModal" destroy-on-close :title="title" fullscreen width="99vw" height="99vh">
-			<SplitPane :min-percent="20" :default-percent="36" split="vertical">
-				<template slot="paneL">
-					<el-container>
-						<el-header style="background-color: #eef1f6;padding: 0 !important;">
-							已选择员工列表
-						</el-header>
-						<el-main style="padding: 0;">
-							<el-table :data="PackageDataTable" stripe border highlight-current-row height="100%">
-								<el-table-column label="工号" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="姓名" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="性别" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="身份证号" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="出生日期" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="年龄" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="联系电话" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="职务" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-							</el-table>
-						</el-main>
-					</el-container>
+  <d2-container>
+    <SplitPane :min-percent="20" :default-percent="80" split="vertical">
+      <template slot="paneL">
+         <m-grid
+        :option.sync="gridOption"
+        :queryForm.sync="queryWidgetForm"
+        :addForm.sync="addWidgetForm"
+        :editForm.sync="modifyWidgetForm"
+        :toolButtos="toolButtos"
+        :toolbarRight="toolbarRight"
+        :parameter="parameter"
+        :importParame="importParame"
+        :url="Interface.tableInterface"
+        :importUrl="Interface.importInterface"
+        :exportUrl="Interface.exportInterface"
+        :operateBtn="operateBtn"
+        @editRowEvent="editRowEvent"
+        @removeRowEvent="removeRowEvent"
+        @toolbar-button-click="toolbarButtonClick"
+        @cell-dbclick="cellDbClick"
+        ref="mkGrid"
+    >
+    <template slot="toolbarLeft">
+      <query-form @query="reload" @reset="reset">
+         <el-form :inline="true" >
+            <el-form-item label="">
+            <mk-select
+            placeholder="请选择部门"
+              v-model="parameter.deptname"
+              :multiple="true"
+              @change="reload"
+              url="/Publics/MemberManage/Portal/PortalDeptInfo_get"
+              :param="{orgid:parameter.orgid}"
+              label="deptname"
+              val="deptname"
+              filter="deptname"
+          >
+        </mk-select>
+        </el-form-item>
+        <el-form-item label="">
+           <mk-select
+              placeholder="请选择职务"
+              v-model="parameter.position"
+              :multiple="true"
+              @change="reload"
+              url="/Publics/MemberManage/Portal/PortalPositionInfo_get"
+              :param="{orgid:parameter.orgid}"
+              label="position"
+              val="position"
+              filter="position"
+          >
+        </mk-select>
+        </el-form-item>
+         <el-form-item label="">
+           <mk-select
+           placeholder="请选择在职状态"
+              v-model="parameter.jobstatus"
+              :multiple="true"
+              @change="reload"
+             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
+              label="statusname"
+              val="status"
+              filter="statusname"
+          >
+        </mk-select>
+        </el-form-item>
+         </el-form>
+       <template slot="detail">
+         <el-form :inline="true" >
+        <el-form-item label="">
+            <mk-select
+            placeholder="请选择部门"
+              v-model="parameter.deptname"
+              :multiple="true"
+              @change="reload"
+              url="/Publics/MemberManage/Portal/PortalDeptInfo_get"
+              :param="{orgid:parameter.orgid}"
+              label="deptname"
+              val="deptname"
+              filter="deptname"
+          >
+        </mk-select>
+        </el-form-item>
+        <el-form-item label="">
+           <mk-select
+            placeholder="请选择职务"
+              v-model="parameter.position"
+              :multiple="true"
+              @change="reload"
+             :datas="[{position:'家属'},{position:'CTO'},{position:'CEO'}]"
+              label="position"
+              val="position"
+              filter="position"
+          >
+        </mk-select>
+        </el-form-item>
+         <el-form-item label="">
+           <mk-select
+           placeholder="请选择在职状态"
+              v-model="parameter.jobstatus"
+              :multiple="true"
+              @change="reload"
+             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
+              label="statusname"
+              val="status"
+              filter="statusname"
+          >
+        </mk-select>
+        </el-form-item>
+         <el-form-item label="">
+           <mk-select
+              placeholder="是否家属"
+              v-model="parameter.family"
+              :multiple="true"
+              @change="reload"
+             :datas="[{familyname:'是',family:1},{familyname:'否',family:0}]"
+              :param="{orgid:parameter.family}"
+              label="familyname"
+              val="family"
+              filter="familyname"
+          >
+        </mk-select>
+        </el-form-item>
+        <el-form-item >
+             <el-input-number v-model="parameter.examcount" placeholder="体检次数大于" controls-position="right" @change="reload" :min="0"></el-input-number>
+        </el-form-item>
+         <el-form-item >
+           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:300px;"></el-input>
+        </el-form-item>
+      </el-form>
+       </template>
+      </query-form>
+      
+    </template>
+     
+    </m-grid>
+      </template>
+      <template slot="paneR">
+           <vxe-grid
+              border
+              resizable
+              :size="value"
+              height="auto"
+              align="center"
+              :autoResize="true"
+              :columns="tableColumn"
+              :data="tableData">
+            </vxe-grid>
+      </template>
+    </SplitPane>
+     <vxe-modal v-model="editModel" title=" 企业员工信息维护" width="1000" >
+      <template v-slot>
+        <vxe-form  title-align="right" title-width="80">
+          <vxe-form-item title="基本信息" span="24" title-align="left" title-width="200px" :title-prefix="{icon: 'fa fa-address-card-o'}"></vxe-form-item>
+          <vxe-form-item title="员工姓名" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="curClickRow.membername" :readonly="true"/>
+            </template>
+          </vxe-form-item>
+          <vxe-form-item title="员工性别" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="curClickRow.sexname" :readonly="true"/>
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="出生日期" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="curClickRow.birthday" :readonly="true"/>
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="证件类型" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="curClickRow.idtypename" :readonly="true"/>
+            </template>
+          </vxe-form-item>
+          <vxe-form-item title="证件编号" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="curClickRow.idnumber" :readonly="true"/>
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="是否家属" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="curClickRow.familyname" :readonly="true"/>
+            </template>
+          </vxe-form-item>
+          <vxe-form-item title="其他信息" span="24" title-align="left" title-width="200px" :title-prefix="{icon: 'fa fa-info-circle'}"></vxe-form-item>
+          <vxe-form-item title="员工工号" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.jobno" />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item title="员工婚姻" field="name" span="8" >
+            <template v-slot>
+               <mk-select
+               placeholder="请选择婚姻"
+              v-model="modifyWidgetForm.marriage"
+              url="/Publics/Common/Dic/StandCode"
+              :param="{codetype:'婚姻',tag:1}"
+              label="bzname"
+              val="bzcode"
+              filter="bzname"
+          >
+        </mk-select>
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="联系电话" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.telno" />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item title="员工部门" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.orgdeptname"  placeholder="请输入员工部门" />
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="员工职务" field="name" span="8" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.position"  placeholder="请输入员工职务" />
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="在职状态" field="name" span="8" >
+            <template v-slot>
+              <mk-select
+            placeholder="请选择在职状态"
+              v-model="modifyWidgetForm.status"
+             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
+              label="statusname"
+              val="status"
+              filter="statusname"
+          >
+        </mk-select>
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="电子邮箱" field="name" span="24" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.email"  placeholder="请输入电子邮箱" />
+            </template>
+          </vxe-form-item>
+           <vxe-form-item title="联系地址" field="name" span="24" >
+            <template v-slot>
+              <el-input v-model="modifyWidgetForm.addr"  placeholder="请输入联系地址" />
+            </template>
+          </vxe-form-item>
+          <vxe-form-item align="center" span="24">
+            <template v-slot>
+              <vxe-button  status="primary" @click="submit">提交</vxe-button>
+              <vxe-button @click="editModel = false">取消</vxe-button>
+            </template>
+          </vxe-form-item>
+        </vxe-form>
+      </template>
 
-				</template>
-				<template slot="paneR">
-					<el-container>
-						<el-header style="background-color: #eef1f6;padding: 0 !important;">
-							套餐信息列表
-						</el-header>
-						<el-main style="padding: 0;">
-							<el-table :data="RightPackageDataTable" stripe border highlight-current-row height="100%">
-								<el-table-column label="套餐名称" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="套餐价格" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="适应性别" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="适应人群 " show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="适应年龄" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="操作" show-overflow-tooltip prop="deptid">
-									<template slot-scope="scope">
-										<el-link type="primary">查看详情</el-link>
-									</template>
-								</el-table-column>
-							</el-table>
-						</el-main>
-					</el-container>
-				</template>
-			</SplitPane>
-		</vxe-modal>
-		<!-- 套餐明细 -->
-		<vxe-modal v-model="DetailPackageModal" destroy-on-close title="套餐明细" fullscreen width="99vw" height="99vh">
-			<el-container>
-				<el-header style="padding: 0 !important;">
-					<table style="width: 100%;" class="tables">
-						<tr>
-							<th width="200">套餐名称</th>
-							<td>1</td>
-						</tr>
-						<tr>
-							<th>套餐价格</th>
-							<td>1</td>
-						</tr>
-						<tr>
-							<th>适应性别</th>
-							<td>1</td>
-						</tr>
-						<tr>
-							<th>适应人群</th>
-							<td>1</td>
-						</tr>
-						<tr>
-							<th>适应年龄</th>
-							<td>1</td>
-						</tr>
-						<tr>
-							<th class="tableTitleBg">分类</th>
-							<td align="center" class="tableTitleBg">分类明细</td>
-						</tr>
-					</table>
-					
-				</el-header>
-				<el-main style="padding: 0;">
-					<el-container>
-					  <el-aside width="200px">
-						  <table style="width: 100%;" class="tables table-th-h">
-						  	<tr>
-						  		<th width="200">一般检查</th>
-						  	</tr>
-						  	<tr>
-						  		<th>超声检查</th>
-						  	</tr>
-						  	<tr>
-						  		<th>妇科检查</th>
-						  	</tr>
-						  	<tr>
-						  		<th>化验检查</th>
-						  	</tr>
-						  </table>
-					  </el-aside>
-					  <el-main style="padding: 0;">
-						  <el-table :data="classDetailData" stripe border highlight-current-row height="100%">
-						  	<el-table-column label="名称" show-overflow-tooltip prop="deptid">
-						  	</el-table-column>
-						  	<el-table-column label="数量" show-overflow-tooltip prop="deptid">
-						  	</el-table-column>
-						  	<el-table-column label="单位" show-overflow-tooltip prop="deptid">
-						  	</el-table-column>
-						  	<el-table-column label="检查意义 " show-overflow-tooltip prop="deptid">
-						  	</el-table-column>
-						  	<el-table-column label="注意事项" show-overflow-tooltip prop="deptid">
-						  	</el-table-column>
-						  </el-table>
-					  </el-main>
-					</el-container>
-					
-					
-				</el-main>
-			</el-container>
-		</vxe-modal>
-		<!-- 预约 -->
-		<vxe-modal v-model="keepModal" destroy-on-close title="体检预约" fullscreen width="99vw" height="99vh">
-			<SplitPane :min-percent="20" :default-percent="50" split="vertical">
-				<template slot="paneL">
-					<el-container>
-						<el-header style="padding: 0 5px !important;" class="tableTitleBg">
-							已选择员工列表
-						</el-header>
-						<el-main style="padding: 0 !important;">
-							<el-table :data="staffData" stripe border highlight-current-row height="100%">
-								<el-table-column
-								      type="selection"
-								      width="55">
-								</el-table-column>
-								<el-table-column label="工号" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="姓名" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="性别" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="身份证号 " show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="已选套餐" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="出生日期" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="年龄" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="联系电话" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="职务" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-							</el-table>
-						</el-main>
-					</el-container>
-				</template>
-				<template slot="paneR">
-					<el-container>
-						<el-header style="padding: 0 5px !important;" class="tableTitleBg">
-							 <div style="padding-right: 30px;">预约信息</div> 
-							 <el-button-group size="mini">
-							  <el-button type="primary" icon="el-icon-arrow-left">上一月</el-button>
-							  <el-button type="primary">下一月<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-							</el-button-group>
-						</el-header>
-						<el-main style="padding: 0 !important;">
-							<el-table :data="keepData" stripe border highlight-current-row height="100%">
-								<el-table-column label="日期" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="已约人数" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="可约人数" show-overflow-tooltip prop="deptid">
-								</el-table-column>
-								<el-table-column label="操作 " show-overflow-tooltip prop="deptid">
-								</el-table-column>
-							</el-table>
-						</el-main>
-					</el-container>
-				</template>
-			</SplitPane>	
-		</vxe-modal>
-	</d2-container>
-</template>
+    </vxe-modal>
+  </d2-container>
+</template>	
+		<script>
+    import { mapState } from 'vuex'
+    import MGrid from "@/components/mk-grid/grid"
+    import QueryForm from "@/components/mk-grid/queryform"
+    import { isArray } from 'xe-utils';
+export default {
+  name: "",
+  components:{
+    MGrid,
+    QueryForm
+  },
+  provide(){
+    return {
+      grid:this
+    }
+  },
+  data() {
+    return {
+      editModel:false,
+      test:1,
+      //table 配置项
+      gridOption: {
+        rowId: "memberid",
+        columns: [
+          {
+            seq: null,
+            title: "全选",
+            width: "80",
+            visible: true,
+            resizable: null,
+            align: "left",
+            remoteSort: false,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            type: "checkbox",
+          },
+          {
+            seq: null,
+            title: "工号",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "jobno",
+          },
+          {
+            seq: null,
+            title: "部门",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: true,
+            is_modify: null,
+            is_add: null,
+            fieldtype: "select",
+            slots: {},
+            field: "deptname",
+          },
+          {
+            seq: null,
+            title: "家属",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: true,
+            is_modify: null,
+            is_add: null,
+            fieldtype: "input",
+            slots: {},
+            field: "familyname",
+          },
+          {
+            seq: null,
+            title: "体检次数",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "examcount",
+          },
+          {
+            seq: null,
+            title: "姓名",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "membername",
+          },
+          {
+            seq: null,
+            title: "性别",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "sexname",
+          },
+          {
+            seq: null,
+            title: "身份证",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "idnumber",
+          },
+          {
+            seq: null,
+            title: "年龄",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "age",
+          },
+          {
+            seq: null,
+            title: "婚姻",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "marriage",
+          },
+          {
+            seq: null,
+            title: "联系电话",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "mobiletel",
+          },
+          {
+            seq: null,
+            title: "职务",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "position",
+          },
+          {
+            seq: null,
+            title: "联系邮箱",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            slots: {},
+            field: "email",
+          },
+        ],
+        editRules: {},
+        checkboxConfig:{
+          highlight:true,
+          checkMethod:this.checkMethod,
+          
+        },
+        toolbar: {
+          slots: { buttons: "toolbar_buttons", tools: "toolbar_right" },
+          perfect: true,
+          import: true,
+          export: true,
+          print: false,
+          refresh: false,
+          zoom: true,
+          custom: true,
+        },
+      },
+      //table表格查询字段
+      queryWidgetForm: {
+       
+      },
+      //弹窗新增数据
+      addWidgetForm: {
+        list: [],
+        config: {
+          labelWidth: 100,
+          labelPosition: "right",
+          size: "small",
+          customClass: "",
+          ui: "element",
+          layout: "horizontal",
+          labelCol: 3,
+          width: "100%",
+          hideLabel: false,
+          hideErrorMessage: false,
+        },
+      },
+      //弹窗编辑数据
+      modifyWidgetForm: {
+		  
+      },
+      //当前点击row数据
+      curClickRow:{},
+      //工具栏左侧自定义按钮
+      toolButtos: [],
+      //工具栏右侧自定义按钮目前只有导入 导出
+      toolbarRight: { import: "0", export: "1", print: "0" },
+      //table 行操作列按钮
+      operateBtn: ["edit", "del"],
+      //table数据接口地址 导入 导出接口地址
+      Interface: {
+        tableInterface: "/Publics/MemberManage/Portal/ExamMemberInfo",
+        importInterface: "/Publics/MemberManage/Portal/Import",
+        exportInterface: "",
+      },
+      //附加参数
+      parameter: {
+        orgid:9,
+        contractid:7,
+        deptname:[],
+        jobstatus:[],
+        position:[],
+        family:[],
+        examcount:0,
+        condition:'',
+        hospitalid:''
+      },
+      //导入附加参数
+      importParame: {},
+      tableColumn:[
+        { field: '合同编号', title: '合同编号',showOverflow: true,showHeaderOverflow: true },
+        { field: '套餐名称', title: '体检套餐',  showOverflow: true,showHeaderOverflow: true },
+        { field: '体检日期', title: '体检时间', showOverflow: true,showHeaderOverflow: true },
+        { field: '体检状态', title: '体检状态', showOverflow: true,showHeaderOverflow: true }
 
-<script>
-	import RangeInput from "@/components/mk-form/mk-range-input/index.vue";
-	export default {
-		components: {
-			RangeInput
-		},
-		data() {
-			return {
-				title: "添加套餐",
-				addPackageModal: false,
-				DetailPackageModal:false,
-				keepModal:false,
-				dataTable: [],
-				classDetailData:[],
-				PackageDataTable: [],
-				RightPackageDataTable: [],
-				staffData:[],
-				keepData:[],
-				daterange: "",
-				pickerOptions: {
-					shortcuts: [{
-							text: "最近一周",
-							onClick(picker) {
-								const end = new Date();
-								const start = new Date();
-								start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-								picker.$emit("pick", [start, end]);
-							}
-						},
-						{
-							text: "最近一个月",
-							onClick(picker) {
-								const end = new Date();
-								const start = new Date();
-								start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-								picker.$emit("pick", [start, end]);
-							}
-						},
-						{
-							text: "最近三个月",
-							onClick(picker) {
-								const end = new Date();
-								const start = new Date();
-								start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-								picker.$emit("pick", [start, end]);
-							}
-						}
-					]
-				},
-				form: {
-					agerange: ""
-				},
-				packageForm: {
+      ],
+      tableData:[],
+    };
+  },
+  computed: {
+     ...mapState('d2admin/size', [
+				'value'
+			])
+  },
+  watch: {},
+  //如果页面有keep-alive缓存功能，这个函数会触发
+  activated() {},
+  created() {
+    // this.$refs.mkGrid.reload();
+  },
+  methods: {
+    //刷新表格
+    reload(){
+      this.$refs.mkGrid.commitProxy('query');
+    },
+    //重置
+    reset(){
+      this.parameter = {
+        orgid:9,
+        contractid:7,
+        deptname:[],
+        jobstatus:[],
+        position:[],
+        family:[],
+        examcount:0,
+        condition:'',
+        hospitalid:''
+      };
+      this.$nextTick(() => {
+        this.reload();
+      })
+    },
+    deptChange(){
+      this.reload();
+    },
 
-				}
-			}
-		},
-		methods: {
-			query() {
-
-			},
-			Export() {
-
-			},
-			//添加预约
-			add() {
-				this.title = '添加套餐'
-				this.addPackageModal = true;
-			},
-			//编辑预约
-			edit() {
-				this.title = '修改套餐'
-				this.addPackageModal = true;
-			},
-			//修改预约
-			editKeep(){
-				this.keepModal = true;
-			}
-		}
-	}
+    removeRowEvent(row){
+      this.del(row)
+    },
+    //
+    checkMethod({row}){
+       return row.examcount == 0;
+    },
+    //左边table双击事件
+    cellDbClick({row}){
+      this.ExamMemberExamInfo_get(row);
+    },
+    //企业Portal获取企业员工所有体检信息
+    ExamMemberExamInfo_get({orgid,memberid}){
+      this.MK.Request('/Publics/MemberManage/Portal/ExamMemberExamInfo', 'get', {orgid,memberid})
+      .then(res => {
+        if(res.code == 0){
+          this.tableData = res.data;
+        }
+      })
+    },
+    toolbarButtonClick(code){
+      switch (code) {
+        case 'delAll':
+            this.delAll();
+          break;
+        default:
+          break;
+      }
+    },
+    //删除
+    delAll(){
+       let getCheckboxRecords = this.$refs.mkGrid.xGrid().getCheckboxRecords();
+       if(getCheckboxRecords.length == 0){
+        this.$XModal.message({ message: '请至少选择一条记录！', status: 'warning' });
+        return
+       }
+        this.del(getCheckboxRecords);
+    },
+    del(row){
+       this.$XModal.confirm('您确定要删除吗？').then(type => {
+         if(type == 'confirm'){
+            let rows = {
+              orgid:this.parameter.orgid,
+              memberdelmx:[],
+          }
+          if(isArray(row)){
+            rows.memberdelmx = row;
+          }else{
+            rows.memberdelmx.push(row)
+          }
+          this.MK.Request('/Publics/MemberManage/Portal/PortalDeleteMember_Post', 'post', rows)
+          .then( res => {
+            if(res.code == 0){
+              this.$XModal.message({ message: '删除成功', status: 'success ' });
+              this.reload();
+            }
+          })
+         }
+      });
+    },
+    //企业员工修改
+    submit(){
+       this.MK.Request('/Publics/MemberManage/Portal/PortalMemberEdit', 'post', this.modifyWidgetForm)
+      .then(res => {
+        if(res.code == 0){
+          this.editModel = false;
+          this.reload();
+        }
+      })
+    }
+  },
+  mounted() {},
+  //生命周期 - 创建之前
+  beforeCreate() {},
+  //生命周期 - 挂载之前
+  beforeMount() {},
+  //生命周期 - 更新之前
+  beforeUpdate() {},
+  //生命周期 - 更新之后
+  updated() {},
+  //生命周期 - 销毁之前
+  beforeDestroy() {},
+  //生命周期 - 销毁完成
+  destroyed() {},
+};
 </script>
-
-<style scoped>
-	.tables,.tables tr th,.tables tr td{
-		border:1px solid #cfcfcf; 
-		border-collapse: collapse;
-		padding: 5px ;
-	}
-	.tables tr th{
-		text-align: center;
-		font-weight: bold;
-	}
-	.table-th-h{
-		border-top: 0 !important;
-	}
-	.table-th-h th{
-		padding: 30px  0 !important;
-		border-top: 0 !important;
-	}
-	.tableTitleBg{
-		background-color: #eef1f6;
-	}
+		<style scoped>
 </style>
+		
