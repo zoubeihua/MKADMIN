@@ -11,7 +11,7 @@
 </template>
 <script>
 export default {
-    props:['value'],
+    props:['value','startPlaceholder'],
     data() {
       return {
         start:'',

@@ -1,6 +1,6 @@
 <template>
 	<div style="height: 100%;overflow: hidden;">
-		<vxe-grid ref="xGrid" v-bind="newGridData" @cell-click="cellClick" @cell-dblclick="cellDblclick">
+		<vxe-grid ref="xGrid" v-bind="newGridData" @cell-click="cellClick" @cell-dblclick="cellDblclick" @checkbox-change="checkboxChange" @checkbox-all="checkboxAll">
 			<!--将表单放在工具栏中-->
 			<template v-slot:toolbar_buttons>
 					<div style="display: flex;align-items: center;" class="toolbarFrom">
@@ -374,6 +374,14 @@ import log from '@/libs/util.log'
 			//单元格被双击
 			cellDblclick({row, rowIndex}){
 				this.$emit('cell-dbclick',{row,rowIndex})
+			},
+			//checkbox勾选时触发
+			checkboxChange({ records, reserves, indeterminates, checked, row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event }){	
+				this.$emit('checkbox-change',{records, checked, row})
+			},
+			//checkbox 全选触发
+			checkboxAll({records}){
+				this.$emit('checkbox-all',{records})
 			},
 			setRowDicVal(){
 				const n = JSON.parse(JSON.stringify(this.newGridData.columns));

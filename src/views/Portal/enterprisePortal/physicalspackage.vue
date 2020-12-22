@@ -15,10 +15,10 @@
         :importUrl="Interface.importInterface"
         :exportUrl="Interface.exportInterface"
         :operateBtn="operateBtn"
-        @editRowEvent="editRowEvent"
         @removeRowEvent="removeRowEvent"
         @toolbar-button-click="toolbarButtonClick"
-        @cell-dbclick="cellDbClick"
+        @checkbox-change="checkboxChange"
+        @checkbox-all="checkboxAll"
         ref="mkGrid"
     >
     <template slot="toolbarLeft">
@@ -54,16 +54,19 @@
         </el-form-item>
          <el-form-item label="">
            <mk-select
-           placeholder="请选择在职状态"
-              v-model="parameter.jobstatus"
-              :multiple="true"
+           placeholder="是否匹配套餐"
+              v-model="parameter.ismatchpack"
+              clear
               @change="reload"
-             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
-              label="statusname"
-              val="status"
-              filter="statusname"
+             :datas="[{label:'是',value:1},{label:'否',value:0}]"
+              label="label"
+              val="value"
+              filter="label"
           >
         </mk-select>
+        </el-form-item>
+         <el-form-item >
+           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:300px;"></el-input>
         </el-form-item>
          </el-form>
        <template slot="detail">
@@ -96,15 +99,15 @@
         </mk-select>
         </el-form-item>
          <el-form-item label="">
-           <mk-select
-           placeholder="请选择在职状态"
-              v-model="parameter.jobstatus"
-              :multiple="true"
+            <mk-select
+           placeholder="是否匹配套餐"
+              v-model="parameter.ismatchpack"
+              clear
               @change="reload"
-             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
-              label="statusname"
-              val="status"
-              filter="statusname"
+             :datas="[{label:'是',value:1},{label:'否',value:0}]"
+              label="label"
+              val="value"
+              filter="label"
           >
         </mk-select>
         </el-form-item>
@@ -123,11 +126,34 @@
         </mk-select>
         </el-form-item>
         <el-form-item >
-             <el-input-number v-model="parameter.examcount" placeholder="体检次数大于" controls-position="right" @change="reload" :min="0"></el-input-number>
+             <mk-select
+              placeholder="体检状态"
+              v-model="parameter.examstatus"
+              :multiple="true"
+              @change="reload"
+             :datas="physicaData"
+              label="examstatusname"
+              val="examstatus"
+              filter="examstatusname"
+          >
+        </mk-select>
         </el-form-item>
          <el-form-item >
-           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:300px;"></el-input>
+             <mk-select
+              placeholder="性别"
+              v-model="parameter.sex"
+              @change="reload"
+             :datas="[{sexname:'男',sex:1},{sexname:'女',sex:2}]"
+              label="sexname"
+              val="sex"
+              filter="sexname"
+          >
+        </mk-select>
         </el-form-item>
+         <el-form-item >
+           <range-input v-model="parameter.agerange"></range-input>
+        </el-form-item>
+        
       </el-form>
        </template>
       </query-form>
@@ -139,130 +165,54 @@
       <template slot="paneR">
            <vxe-grid
               border
+              ref="rightGrid"
               resizable
               :size="value"
               height="auto"
               align="center"
               :autoResize="true"
               :columns="tableColumn"
-              :data="tableData">
+              :checkbox-config="checkboxConfig"
+              :data="examData">
+               <template v-slot:examData={row}>
+                 <table>
+                   <tr>
+                     <th>套餐名称</th>
+                     <td>{{row.套餐名称}}</td>
+                   </tr>
+                    <tr>
+                     <th>套餐价格</th>
+                     <td>{{row.套餐价格}}</td>
+                   </tr>
+                    <tr>
+                     <th>适应性别</th>
+                     <td>{{row.适应性别}}</td>
+                   </tr>
+                    <tr>
+                     <th>适应年龄</th>
+                     <td>{{row.适应年龄}}</td>
+                   </tr>
+                 </table>
+                 
+               </template>
             </vxe-grid>
       </template>
     </SplitPane>
-     <vxe-modal v-model="editModel" title=" 企业员工信息维护" width="1000" >
-      <template v-slot>
-        <vxe-form  title-align="right" title-width="80">
-          <vxe-form-item title="基本信息" span="24" title-align="left" title-width="200px" :title-prefix="{icon: 'fa fa-address-card-o'}"></vxe-form-item>
-          <vxe-form-item title="员工姓名" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="curClickRow.membername" :readonly="true"/>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item title="员工性别" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="curClickRow.sexname" :readonly="true"/>
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="出生日期" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="curClickRow.birthday" :readonly="true"/>
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="证件类型" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="curClickRow.idtypename" :readonly="true"/>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item title="证件编号" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="curClickRow.idnumber" :readonly="true"/>
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="是否家属" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="curClickRow.familyname" :readonly="true"/>
-            </template>
-          </vxe-form-item>
-          <vxe-form-item title="其他信息" span="24" title-align="left" title-width="200px" :title-prefix="{icon: 'fa fa-info-circle'}"></vxe-form-item>
-          <vxe-form-item title="员工工号" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="modifyWidgetForm.jobno" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item title="员工婚姻" field="name" span="8" >
-            <template v-slot>
-               <mk-select
-               placeholder="请选择婚姻"
-              v-model="modifyWidgetForm.marriage"
-              url="/Publics/Common/Dic/StandCode"
-              :param="{codetype:'婚姻',tag:1}"
-              label="bzname"
-              val="bzcode"
-              filter="bzname"
-          >
-        </mk-select>
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="联系电话" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="modifyWidgetForm.telno" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item title="员工部门" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="modifyWidgetForm.orgdeptname"  placeholder="请输入员工部门" />
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="员工职务" field="name" span="8" >
-            <template v-slot>
-              <el-input v-model="modifyWidgetForm.position"  placeholder="请输入员工职务" />
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="在职状态" field="name" span="8" >
-            <template v-slot>
-              <mk-select
-            placeholder="请选择在职状态"
-              v-model="modifyWidgetForm.status"
-             :datas="[{statusname:'在职',status:1},{statusname:'离职',status:0}]"
-              label="statusname"
-              val="status"
-              filter="statusname"
-          >
-        </mk-select>
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="电子邮箱" field="name" span="24" >
-            <template v-slot>
-              <el-input v-model="modifyWidgetForm.email"  placeholder="请输入电子邮箱" />
-            </template>
-          </vxe-form-item>
-           <vxe-form-item title="联系地址" field="name" span="24" >
-            <template v-slot>
-              <el-input v-model="modifyWidgetForm.addr"  placeholder="请输入联系地址" />
-            </template>
-          </vxe-form-item>
-          <vxe-form-item align="center" span="24">
-            <template v-slot>
-              <vxe-button  status="primary" @click="submit">提交</vxe-button>
-              <vxe-button @click="editModel = false">取消</vxe-button>
-            </template>
-          </vxe-form-item>
-        </vxe-form>
-      </template>
-
-    </vxe-modal>
+    
   </d2-container>
 </template>	
 		<script>
     import { mapState } from 'vuex'
     import MGrid from "@/components/mk-grid/grid"
     import QueryForm from "@/components/mk-grid/queryform"
-    import { isArray } from 'xe-utils';
+    import RangeInput from "@/components/mk-form/mk-range-input/index.vue";
+    import { isArray ,uniq} from 'xe-utils';
 export default {
   name: "",
   components:{
     MGrid,
-    QueryForm
+    QueryForm,
+    RangeInput
   },
   provide(){
     return {
@@ -272,7 +222,20 @@ export default {
   data() {
     return {
       editModel:false,
-      test:1,
+      physicaData:[
+         {examstatusname:'预登记',examstatus:-1},
+        {examstatusname:'登记',examstatus:0},
+        {examstatusname:'到检',examstatus:1},
+        {examstatusname:'体检中',examstatus:2},
+        {examstatusname:'已完成',examstatus:3},
+        {examstatusname:'已总检',examstatus:4},
+        {examstatusname:'已审核',examstatus:5},
+        {examstatusname:'已结束',examstatus:6},
+        {examstatusname:'总检中',examstatus:7},
+        {examstatusname:'待审核',examstatus:8},
+        {examstatusname:'已取消',examstatus:9},
+        {examstatusname:'归档',examstatus:99}
+      ],
       //table 配置项
       gridOption: {
         rowId: "memberid",
@@ -293,7 +256,7 @@ export default {
           },
           {
             seq: null,
-            title: "工号",
+            title: "合同编号",
             width: null,
             visible: true,
             resizable: null,
@@ -304,9 +267,24 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "jobno",
+            field: "contractid",
           },
           {
+            seq: null,
+            title: "合同名称",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "contractname",
+          },
+            {
             seq: null,
             title: "部门",
             width: null,
@@ -323,22 +301,7 @@ export default {
           },
           {
             seq: null,
-            title: "家属",
-            width: null,
-            visible: true,
-            resizable: null,
-            align: "center",
-            remoteSort: true,
-            is_query: true,
-            is_modify: null,
-            is_add: null,
-            fieldtype: "input",
-            slots: {},
-            field: "familyname",
-          },
-          {
-            seq: null,
-            title: "体检次数",
+            title: "工号",
             width: null,
             visible: true,
             resizable: null,
@@ -349,9 +312,9 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "examcount",
+            field: "jobno",
           },
-          {
+            {
             seq: null,
             title: "姓名",
             width: null,
@@ -365,6 +328,67 @@ export default {
             fieldtype: null,
             slots: {},
             field: "membername",
+          },
+           {
+            seq: null,
+            title: "家属",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: true,
+            is_modify: null,
+            is_add: null,
+            fieldtype: "input",
+            slots: {},
+            field: "familyname",
+          },
+        
+          // {
+          //   seq: null,
+          //   title: "体检次数",
+          //   width: null,
+          //   visible: true,
+          //   resizable: null,
+          //   align: "center",
+          //   remoteSort: true,
+          //   is_query: null,
+          //   is_modify: null,
+          //   is_add: null,
+          //   fieldtype: null,
+          //   slots: {},
+          //   field: "examcount",
+          // },
+          {
+            seq: null,
+            title: "自费挂账",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "ZFGZ",
+          },
+          {
+            seq: null,
+            title: "已选套餐",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            is_query: null,
+            is_modify: null,
+            is_add: null,
+            fieldtype: null,
+            slots: {},
+            field: "choosepackage",
           },
           {
             seq: null,
@@ -381,21 +405,21 @@ export default {
             slots: {},
             field: "sexname",
           },
-          {
-            seq: null,
-            title: "身份证",
-            width: null,
-            visible: true,
-            resizable: null,
-            align: "center",
-            remoteSort: true,
-            is_query: null,
-            is_modify: null,
-            is_add: null,
-            fieldtype: null,
-            slots: {},
-            field: "idnumber",
-          },
+          // {
+          //   seq: null,
+          //   title: "身份证",
+          //   width: null,
+          //   visible: true,
+          //   resizable: null,
+          //   align: "center",
+          //   remoteSort: true,
+          //   is_query: null,
+          //   is_modify: null,
+          //   is_add: null,
+          //   fieldtype: null,
+          //   slots: {},
+          //   field: "idnumber",
+          // },
           {
             seq: null,
             title: "年龄",
@@ -443,21 +467,6 @@ export default {
           },
           {
             seq: null,
-            title: "职务",
-            width: null,
-            visible: true,
-            resizable: null,
-            align: "center",
-            remoteSort: true,
-            is_query: null,
-            is_modify: null,
-            is_add: null,
-            fieldtype: null,
-            slots: {},
-            field: "position",
-          },
-          {
-            seq: null,
             title: "联系邮箱",
             width: null,
             visible: true,
@@ -467,12 +476,22 @@ export default {
             slots: {},
             field: "email",
           },
+           {
+            seq: null,
+            title: "体检状态",
+            width: null,
+            visible: true,
+            resizable: null,
+            align: "center",
+            remoteSort: true,
+            slots: {},
+            field: "examstatusname",
+          },
         ],
         editRules: {},
         checkboxConfig:{
           highlight:true,
-          checkMethod:this.checkMethod,
-          
+          trigger:'row'
         },
         toolbar: {
           slots: { buttons: "toolbar_buttons", tools: "toolbar_right" },
@@ -512,7 +531,16 @@ export default {
       //当前点击row数据
       curClickRow:{},
       //工具栏左侧自定义按钮
-      toolButtos: [],
+      toolButtos: [{
+        code:'topack',
+        name:'关联套餐'
+      },{
+        code:'cancelpack',
+        name:' 取消套餐'
+      },{
+        code:'sendmsg',
+        name:'发送短信'
+      }],
       //工具栏右侧自定义按钮目前只有导入 导出
       toolbarRight: { import: "0", export: "1", print: "0" },
       //table 行操作列按钮
@@ -531,20 +559,28 @@ export default {
         jobstatus:[],
         position:[],
         family:[],
-        examcount:0,
+        examstatus:[],
+        sex:'',
         condition:'',
-        hospitalid:''
+        hospitalid:'',
+        ismatchpack:'',//是否匹配套餐 1 匹配 0不匹配
+        minage:'',//最小年龄
+        maxage:'',//最大年龄
+        agerange:''//年龄范围格式 10-20 ，“-1” 标识 无年龄范围限制
       },
       //导入附加参数
       importParame: {},
       tableColumn:[
-        { field: '合同编号', title: '合同编号',showOverflow: true,showHeaderOverflow: true },
-        { field: '套餐名称', title: '体检套餐',  showOverflow: true,showHeaderOverflow: true },
-        { field: '体检日期', title: '体检时间', showOverflow: true,showHeaderOverflow: true },
-        { field: '体检状态', title: '体检状态', showOverflow: true,showHeaderOverflow: true }
+        {title: "全选",width: "80", visible: true, align: "left", type: "checkbox"},
+        { field: '套餐ID', title: '体检套餐',slots:{default:'examData'} }
 
       ],
+      checkboxConfig:{
+        highlight:true,
+        trigger:'row'
+      },
       tableData:[],
+      examData:[],
     };
   },
   computed: {
@@ -552,11 +588,17 @@ export default {
 				'value'
 			])
   },
-  watch: {},
+  watch: {
+    'parameter.agerange'(val){
+      console.log(val);
+    }
+  },
   //如果页面有keep-alive缓存功能，这个函数会触发
   activated() {},
   created() {
     // this.$refs.mkGrid.reload();
+    this.PortalPackage_get();
+  
   },
   methods: {
     //刷新表格
@@ -591,68 +633,177 @@ export default {
     checkMethod({row}){
        return row.examcount == 0;
     },
-    //左边table双击事件
-    cellDbClick({row}){
-      this.ExamMemberExamInfo_get(row);
+    sortArr(arr){
+      var map = {},
+          dest = [];
+      for(var i = 0; i < arr.length; i++){
+          var ai = arr[i];
+          if(!map[ai.套餐ID]){
+              dest.push({
+                  套餐ID: ai.套餐ID,
+                  套餐名称: ai.套餐名称,
+                  套餐价格:ai.套餐价格,
+                  适应性别:ai.适应性别,
+                  适应年龄:ai.适应年龄,
+                  data: [ai]
+              });
+              map[ai.套餐ID] = ai;
+          }else{
+              for(var j = 0; j < dest.length; j++){
+                  var dj = dest[j];
+                  if(dj.套餐ID == ai.套餐ID){
+                      dj.data.push(ai);
+                      break;
+                  }
+              }
+          }
+      };
+      return dest;
     },
-    //企业Portal获取企业员工所有体检信息
-    ExamMemberExamInfo_get({orgid,memberid}){
-      this.MK.Request('/Publics/MemberManage/Portal/ExamMemberExamInfo', 'get', {orgid,memberid})
+    //企业Portal获取企业合同套餐信息 
+    PortalPackage_get(){
+      let data = {
+        orgid:this.parameter.orgid,
+        contractid:this.parameter.contractid,
+        tag:1
+      }
+      this.MK.Request('/Publics/MemberManage/Portal/PortalPackage_get', 'get', data)
       .then(res => {
         if(res.code == 0){
-          this.tableData = res.data;
+          this.examData = this.sortArr(res.data);
         }
       })
     },
     toolbarButtonClick(code){
       switch (code) {
-        case 'delAll':
-            this.delAll();
+        case 'topack':
+            this.topack();
+          break;
+           case 'cancelpack':
+            this.cancelpack();
+          break;
+          case 'sendmsg':
+            
           break;
         default:
           break;
       }
     },
-    //删除
-    delAll(){
-       let getCheckboxRecords = this.$refs.mkGrid.xGrid().getCheckboxRecords();
-       if(getCheckboxRecords.length == 0){
-        this.$XModal.message({ message: '请至少选择一条记录！', status: 'warning' });
-        return
-       }
-        this.del(getCheckboxRecords);
+    //判断勾选
+    ischeck(){
+       let getLeftCheckboxRecords = this.$refs.mkGrid.xGrid().getCheckboxRecords();
+       let getRightCheckboxRecords = this.$refs.rightGrid.getCheckboxRecords();
+         if(getLeftCheckboxRecords.length == 0){
+          this.$XModal.message({ message: '请选择人员！', status: 'warning' });
+          return false;
+         };
+        if(getRightCheckboxRecords.length == 0){
+          this.$XModal.message({ message: '请选择套餐！', status: 'warning' });
+          return false;
+        };
+        return {
+          left:getLeftCheckboxRecords,
+          right:getRightCheckboxRecords
+        };
     },
-    del(row){
-       this.$XModal.confirm('您确定要删除吗？').then(type => {
-         if(type == 'confirm'){
-            let rows = {
-              orgid:this.parameter.orgid,
-              memberdelmx:[],
-          }
-          if(isArray(row)){
-            rows.memberdelmx = row;
-          }else{
-            rows.memberdelmx.push(row)
-          }
-          this.MK.Request('/Publics/MemberManage/Portal/PortalDeleteMember_Post', 'post', rows)
-          .then( res => {
-            if(res.code == 0){
-              this.$XModal.message({ message: '删除成功', status: 'success ' });
-              this.reload();
-            }
-          })
-         }
-      });
-    },
-    //企业员工修改
-    submit(){
-       this.MK.Request('/Publics/MemberManage/Portal/PortalMemberEdit', 'post', this.modifyWidgetForm)
-      .then(res => {
-        if(res.code == 0){
-          this.editModel = false;
-          this.reload();
+    //table left checkbox 勾选触发
+    checkboxChange({records,row,checked}){
+        // console.log(uniq([11, 22, 33, 33, 22, 55]));
+        var arr = []
+        var findKeyArr = [];
+        if(row.choosepackageID != ''){
+            var mapArr = records.map(item => {
+              return {
+                choosepackageID:item.choosepackageID.split(',')
+              }
+            })
+              mapArr.forEach(item => {
+                if(item.choosepackageID.length){
+                  item.choosepackageID.forEach(key => {
+                     arr.push(key)
+                  })
+                  
+                }
+              })
+            findKeyArr = uniq(arr);
+            this.rightcheckHandel(findKeyArr,checked)
+        }else{
+            this.rightcheckHandel([],checked)
         }
-      })
+      
+
+    },
+    //table left checkboxAll 全选触发
+    checkboxAll({records}){
+
+    },
+    //设置table行选中
+    setCheckboxRow(el,row,checked){
+      this.$refs[el].setCheckboxRow([row], checked)
+      // this.$refs[el].toggleCheckboxRow(row)
+    },
+    rightcheckHandel(data,checked){
+       var getRightData= this.examData;
+      
+      if(data.length){
+        data.forEach(key => {
+           let findRow = getRightData.find(item => item.套餐ID.toString().includes(key) == true);
+           this.setCheckboxRow('rightGrid',findRow,true)
+        })
+       
+      }else{  
+         this.$refs['rightGrid'].clearCheckboxRow();
+      }
+    },
+    //关联套餐
+    topack(){
+      if(this.ischeck()){
+        let res = this.ischeck();
+        this.submitPack(res.left,res.right,1)
+      }
+    },
+    //取消套餐
+    cancelpack(){
+      if(this.ischeck()){
+        let res = this.ischeck();
+        this.submitPack(res.left,res.right,0)
+      }
+    },
+    //关联 取消 公共方法 left左边数据 right右边数据 type 0 取消 1关联
+    submitPack(left,right,type){
+      //packageid 为空取消套餐关联
+       var  memberPackagemx = [];
+        for(let i = 0; i < right.length; i++){
+          let data = {}
+          data.packageid = type == 0 ? '' : right[i].套餐ID;
+          data.packagename =right[i].套餐名称;
+          for(let j = 0; j < left.length; j++){
+            data.orgid = left[j].orgid;
+            data.family = left[j].family;
+            data.memberid = left[j].memberid;
+            data.orgname = left[j].orgname;
+            data.contractid = left[j].contractid;
+            data.contractname = left[j].contractname;
+            data.contractno = left[j].contractno;
+            data.memberid = left[j].memberid;
+            data.examstatus = left[j].examstatus;
+            memberPackagemx.push(JSON.parse(JSON.stringify(data)));
+          }
+        }
+        this.MK.Request('/Publics/MemberManage/Portal/PortalMemberChoosePackage', 'post', {memberPackagemx})
+        .then(res => {
+          if(res.code == 0){
+            let str = '成功'
+            if(type == 0){
+              str = '取消成功'
+            }else{
+              str = '关联成功'
+            }
+            this.$XModal.message({ message: str, status: 'success' });
+            this.reload();
+            this.PortalPackage_get();
+          }
+        })
     }
   },
   mounted() {},
