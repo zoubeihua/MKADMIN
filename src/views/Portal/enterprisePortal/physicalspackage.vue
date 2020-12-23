@@ -151,7 +151,7 @@
         </mk-select>
         </el-form-item>
          <el-form-item >
-           <range-input v-model="parameter.agerange"></range-input>
+           <!-- <range-input start-placeholder="年龄" end-placeholder="年龄" v-model="parameter.agerange" style="width:200px;"></range-input> -->
         </el-form-item>
         
       </el-form>
@@ -553,8 +553,8 @@ export default {
       },
       //附加参数
       parameter: {
-        orgid:9,
-        contractid:7,
+        orgid:'',
+        contractid:'',
         deptname:[],
         jobstatus:[],
         position:[],
@@ -590,13 +590,16 @@ export default {
   },
   watch: {
     'parameter.agerange'(val){
-      console.log(val);
+      let ageArr = val.split('-');
+      this.parameter.minage = ageArr[0];//最小年龄
+      this.parameter.maxage = ageArr[1];//最大年龄
     }
   },
   //如果页面有keep-alive缓存功能，这个函数会触发
   activated() {},
   created() {
-    // this.$refs.mkGrid.reload();
+    this.parameter.orgid = this.info.orgid;
+    this.parameter.contractid = this.info.contractid;
     this.PortalPackage_get();
   
   },
@@ -608,8 +611,8 @@ export default {
     //重置
     reset(){
       this.parameter = {
-        orgid:9,
-        contractid:7,
+        orgid:this.info.orgid,
+        contractid:this.info.contractid,
         deptname:[],
         jobstatus:[],
         position:[],

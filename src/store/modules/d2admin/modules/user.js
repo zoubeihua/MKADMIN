@@ -1,6 +1,9 @@
+import util from '@/libs/util.js'
 export default {
   namespaced: true,
   state: {
+    // 用户登录状态
+    isLogged: !!util.cookies.get('token'),
     // 用户信息
     info: {}
   },
@@ -33,6 +36,16 @@ export default {
         defaultValue: {},
         user: true
       }, { root: true })
+    }
+  },
+  mutations: {
+    /**
+     * @description 设置用户登陆状态
+     * @param {Object} state state
+     * @param {Boolean} value 是否登录
+     */
+    isLoggedSet (state, value) {
+      state.isLogged = value
     }
   }
 }

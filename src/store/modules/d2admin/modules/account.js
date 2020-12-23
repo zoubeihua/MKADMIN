@@ -41,6 +41,17 @@ export default {
           util.cookies.set("uuid",userData.userid);
           util.cookies.set('auth',userData.userid);
           // util.cookies.set('token', userData.USERID)
+        let resPortal = await api.SYS_Portal_Info_Get({
+            userid:userData.userid,
+            orgid:userData.orgid
+          })
+          let orgname = '';
+          if(resPortal.code == 0){
+            if(resPortal.data.length){
+              orgname = resPortal.data[0].orgname;
+            }
+          }
+          userData.orgname = orgname;
           // 设置 vuex 用户信息
           await dispatch('d2admin/user/set',{ ...userData,...names,dataStandardDic,accessToken,refreshToken },{ root: true })
           // 用户登录后从持久化数据加载一系列的设置

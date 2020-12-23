@@ -83,7 +83,7 @@ module.exports = {
     disableHostCheck: process.env.NODE_ENV === 'development',
     proxy: {
       '/Publics': {
-          // http://localhost:8088/ target: 'http://210.22.75.54:12014' 'https://210.22.75.54:12014' http://101.69.241.13:12015 https://crm.weilaihos.com:12015/,
+          // http://localhost:5000 target: 'http://210.22.75.54:12014' 'https://210.22.75.54:12014' http://101.69.241.13:12015 https://crm.weilaihos.com:12015/,
           target: 'https://210.22.75.54:12014',
           changeOrigin: true,
           pathRewrite: {}

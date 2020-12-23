@@ -1,17 +1,18 @@
 <template>
   <div style="width:100%" class="rangeinput el-input__inner">
       <div style="width:100%;">
-        <el-input class="start" v-model="start"  @input="start=start.replace(/[^\d]/g,'')"  placeholder="范围" ></el-input>
+        <el-input class="start" v-model="start"  @input="start=start.replace(/[^\d]/g,'')"  :placeholder="startPlaceholder" ></el-input>
       </div>
       <div class="fh">~</div>
       <div style="width:100%;">
-        <el-input class="end" v-model="end" @input="end=end.replace(/[^\d]/g,'')" placeholder="范围" ></el-input>
+        <el-input class="end" v-model="end" @input="end=end.replace(/[^\d]/g,'')" :placeholder="startPlaceholder" ></el-input>
       </div>
   </div>
 </template>
 <script>
+import { debounce} from 'xe-utils';
 export default {
-    props:['value','startPlaceholder'],
+    props:['value','startPlaceholder','endPlaceholder'],
     data() {
       return {
         start:'',
@@ -20,18 +21,27 @@ export default {
     },
     computed:{
       models(){
-        if(this.start != '' && this.end != ''){
-          if(parseInt(this.start) >= parseInt(this.end)){
+       debounce(this.set,1000,{
+          leading: false,
+          trailing: true
+       })
+      }
+    },
+    methods:{
+      set(){
+         if(this.start != '' && this.end != ''){
+          if(parseInt(this.start) > parseInt(this.end)){
             this.$message({
               type:'error',
               message:'开始值不能大于等于结束值'
             })
-            return '';
-          }else{
-            return this.start + '-' + this.end;
+           this.start = this.end - 1;
+            
           }
-        }else{
-          return '';
+          if(parseInt(this.end) < parseInt(this.start)){
+            this.end = this.start + 1;
+          }
+          return this.start + '-' + this.end;
         }
       }
     },

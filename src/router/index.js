@@ -12,9 +12,7 @@ import layoutHeaderAside from '@/layout/header-aside'
 const _import = require('@/libs/util.import.' + process.env.NODE_ENV)
 import api from '@/api'
 // 路由数据
-// import routes from './routes'
-
-// fix vue-router NavigationDuplicated
+import routes from './routes'
 const VueRouterPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return VueRouterPush.call(this,location).catch(err => err)
@@ -23,188 +21,168 @@ const VueRouterReplace = VueRouter.prototype.replace
 VueRouter.prototype.replace = function replace(location) {
   return VueRouterReplace.call(this,location).catch(err => err)
 }
-
+let permissionMenu,permissionRouter,buttonAccss = []
 Vue.use(VueRouter)
 
-/**
- * @description 创建在 layout 中显示的路由设置
- * @param {Array} routes 动态路由设置
- */
-export function createRoutesInLayout(routes = []) {
-  return [{
-    path: '/',
-    redirect: { name: 'index' },
-    component: layoutHeaderAside,
-    children: [
-      // 首页
-      {
-        path: 'index',
-        name: 'index',
-        meta: {
-          title: '首页',
-          auth: true
-        },
-        component: _import('system/index')
-      },
-      {
-        path: 'log',
-        name: 'log',
-        meta: {
-          title: '前端日志',
-          auth: true
-        },
-        component: _import('system/log')
-      },
-        // 刷新页面 必须保留
-        {
-          path: 'refresh',
-          name: 'refresh',
-          hidden: true,
-          component: _import('system/function/refresh')
-        },
-        // 页面重定向 必须保留
-        {
-          path: 'redirect/:route*',
-          name: 'redirect',
-          hidden: true,
-          component: _import('system/function/redirect')
-        }
-    ]
-  },
-  ...routes
-]
-}
-
-// 在 layout 之外显示的路由
-export const routesOutLayout = [
-  // 登录
-  {
-    path: '/login',
-    meta: {
-      title: '登录'
-    },
-    name: 'login',
-    component: _import('system/login')
-  },
-  {
-    path: '/activeH5/:eventid/:hospitalid/:crfid/',
-    name: 'activeH5',
-    component: _import('system/activeH5/index')
-  },{
-    path: '/activeCampH5/:eventid/:hospitalid/:crfid/',
-    name: 'activeH5',
-    component: _import('system/activeH5/camp')
-  },
-  {
-    path: '/application',
-    name: 'application',
-    component: _import('system/ApplicationView/index')
-  },
-  {
-    path: '/designer',
-    name: 'designer',
-    component: _import('system/designer/index')
-  },
-  { path: '*',name: '404',component: _import('system/error/404') }
-]
-// 默认的路由
-export const constantRoutes = createRoutesInLayout().concat(routesOutLayout)
-
-/**
- * @description 创建路由
- * @param {Array} routes 路由设置
- */
-const createRouter = (routes = []) => new VueRouter({
-  scrollBehavior: () => ({ y: 0 }),
+// 导出路由 在 main.js 里使用
+const router = new VueRouter({
   routes
 })
-
-// 导出路由 在 main.js 里使用
-const router = createRouter(constantRoutes)
-
-/**
- * @description 重新设置路由
- * @param {Array} routes 额外追加的路由
- */
-export function resetRouter(routes = []) {
-  router.matcher = createRouter(routes).matcher
+//标记是否已经拉取权限信息
+let isFetchPermissionInfo = false
+let fetchPermissionInfo = async () => {
+  // console.log("获取菜单：" + store.state.d2admin.routers.isfechpermissioninfo)
+  function filterAsyncRouter(asyncRouterMap) { //遍历后台传来的路由字符串，转换为组件对象
+    const accessedRouters = asyncRouterMap.filter(route => {
+      route.meta.auth = route.meta.auth == 'true' ? true : false;
+      route.meta.cache = route.meta.cache == 'true' ? true : false;
+			if(route.target != 'button'){
+				if (route.component) {
+				  if (route.component === 'layoutHeaderAside') { //Layout组件特殊处理
+				    route.component = layoutHeaderAside
+				  } else {
+					  try {
+					    route.component = _import(route.component)
+					  } catch (e) {
+					    //TODO handle the exception
+					    route.component = _import('system/error/404')
+					    console.log('路由组件不存在');
+					    console.log(e.message);
+					  }
+				   
+				  }
+				}
+				if (route.children && route.children.length) {
+				  route.children = filterAsyncRouter(route.children)
+				}
+				return true
+			}
+     
+    })
+		console.log("asyncRouterMap_filter")
+		console.log(accessedRouters)
+    return accessedRouters
+  }
+  try {
+    let userInfo = await store.dispatch('d2admin/db/get',{
+      dbName: 'sys',
+      path: 'user.info',
+      defaultValue: {},
+      user: true
+    },{ root: true })
+	function getperms(data){
+		let list = [];
+		data.forEach(item => {
+			if(item.buttonpermissions.length){
+				item.buttonpermissions.forEach(key => {
+					list.push(key.perms);
+				})
+			}
+		})
+		return list;
+	};
+    let userPermissionInfo = await api.MENU_ALL({ userid: userInfo.userid,tag: 0 });//获取路由和菜单数据
+		let result = await api.MENU_ALL({userid: userInfo.userid,tag:0,hospitalid:userInfo.hospitalid,appid:userInfo.accessid});
+		if(result.code == 0){
+			let menuDataList = result.dataMenu;
+			permissionMenu = result.dataMenu;
+		 await store.dispatch('d2admin/user/set', { ...userInfo, menuDataList}, { root: true })
+		 store.commit('d2admin/permission/permissionsSet', getperms(result.dataButton), { root: true })
+		}
+    buttonAccss = userPermissionInfo.dataButtonAccess
+    // permissionRouter = filterAsyncRouter([...userPermissionInfo.dataRoute, ...testProject])
+    permissionRouter = filterAsyncRouter([...userPermissionInfo.dataRoute])
+    //动态添加路由
+	router.addRoutes(permissionRouter);
+	// console.log("路由数据：", permissionRouter)
+	await store.dispatch('d2admin/routers/routerSet',permissionRouter,{ root: true })
+	await store.dispatch('d2admin/routers/accessSet',buttonAccss,{ root: true })
+	// 处理路由 得到每一级的路由设置
+	store.commit('d2admin/page/init',[...permissionRouter])
+	// 设置侧栏菜单
+	store.commit('d2admin/menu/asideSet',[...permissionMenu])
+	// 设置顶栏菜单
+	// store.commit('d2admin/menu/headerSet', [...permissionMenu])
+	// 初始化菜单搜索功能
+	store.commit('d2admin/search/init',permissionMenu)
+	// 加载上次退出时的多页列表
+	store.dispatch('d2admin/page/openedLoad',null,{ root: true })
+  
+  } catch (err) {
+    console.log(err)
+  }
+  await Promise.resolve()
 }
-
-
-// // 导出路由 在 main.js 里使用
-// const router = new VueRouter({
-//   routes
-// })
-
 /**
  * 路由拦截
  * 权限验证
  */
 router.beforeEach(async (to,from,next) => {
+  await store.dispatch('d2admin/menu/setMenuData',to.meta,{ root: true })
   // 进度条
   NProgress.start()
- 
-  try {
-    const token = util.cookies.get('token') //首页验证权限
-    const auth = util.cookies.get('auth')// 应用选择权限
-    // 确认已经加载多标签页数据 https://github.com/d2-projects/d2-admin/issues/201
-    // await store.dispatch('d2admin/page/isLoaded')
-    // 确认已经加载组件尺寸设置 https://github.com/d2-projects/d2-admin/issues/198
-    await store.dispatch('d2admin/size/isLoaded')
-    // 关闭搜索面板
-    store.commit('d2admin/search/set',false)
-    // 加载动态路由 内部已经做了对登录状态和是否已经加载动态路由的判断
-    await store.dispatch('d2admin/permission/load',{ to: to.fullPath })
-    // 验证当前路由所有的匹配中是否需要有登录验证的
-    if (to.matched.some(r => r.meta.auth)) {
-      // 这里暂时将cookie里是否存有token作为验证是否登录的条件
-      // 请根据自身业务需要修改
-      const token = util.cookies.get('token')
-      if (token && token !== 'undefined') {
-        next()
+  // 关闭搜索面板
+  store.commit('d2admin/search/set',false)
+  const token = util.cookies.get('token') //首页验证权限
+  const auth = util.cookies.get('auth')// 应用选择权限
+  if (to.matched.some(r => r.meta.auth)) {
+
+    // 这里暂时将cookie里是否存有token作为验证是否登录的条件
+    // 请根据自身业务需要修改
+    if (token && token !== 'undefined') {
+      //拉取权限信息
+      if (!isFetchPermissionInfo) {
+        await fetchPermissionInfo();
+        isFetchPermissionInfo = true;
+        next(to.path,true)
       } else {
-        // 没有登录的时候跳转到登录界面
-        // 携带上登陆成功之后需要跳转的页面完整路径
-        util.cookies.set('redirect',to.fullPath)
-        next({
-          name: 'login',
-          query: {
-            redirect: to.fullPath
-          }
-        })
-        // https://github.com/d2-projects/d2-admin/issues/138
-      
+        next()
       }
     } else {
-      if (token && token !== 'undefined') {
-        // 将当前预计打开的页面完整地址临时存储 登录后继续跳转
-        // 这个 cookie(redirect) 会在登录后自动删除
-        util.cookies.set('redirect',to.fullPath)
-          if(from.name == 'index'){
-            if (token && token !== 'undefined') {
-              next(from.path,true);
-            }else{
-              next()
-            }
-          }else{
-            next()
-          }
-      }else{
-        if(from.name == 'application'){
-          if (auth && auth !== 'undefined') {
+      // 将当前预计打开的页面完整地址临时存储 登录后继续跳转
+      // 这个 cookie(redirect) 会在登录后自动删除
+      util.cookies.set('redirect',to.fullPath)
+      // 没有登录的时候跳转到登录界面
+      next({
+        name: 'login'
+      })
+      NProgress.done()
+    }
+  } else {
+    if (token && token !== 'undefined') {
+      // 将当前预计打开的页面完整地址临时存储 登录后继续跳转
+      // 这个 cookie(redirect) 会在登录后自动删除
+      util.cookies.set('redirect',to.fullPath)
+      //拉取权限信息
+      if (!isFetchPermissionInfo) {
+        await fetchPermissionInfo();
+        isFetchPermissionInfo = true;
+        next(to.path,true)
+      } else {
+        if(from.name == 'index'){
+          if (token && token !== 'undefined') {
             next(from.path,true);
-          } else {
+            NProgress.done()
+          }else{
             next()
           }
         }else{
           next()
         }
       }
+    }else{
+      if(from.name == 'application'){
+        if (auth && auth !== 'undefined') {
+          next(from.path,true);
+          NProgress.done()
+        } else {
+          next()
+        }
+      }else{
+        next()
+      }
     }
-  } catch (error) {
-    next(false)
   }
-  NProgress.done()
 })
 
 router.afterEach(to => {

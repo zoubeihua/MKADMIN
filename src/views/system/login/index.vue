@@ -223,7 +223,6 @@ export default {
                 this.userinfo = res;
                 this.hospitalidList = res.listhospitalinfo;
                 let isJump = this.isJump();
-                console.log(isJump);
                 this.setDataJump(isJump);
               
             })

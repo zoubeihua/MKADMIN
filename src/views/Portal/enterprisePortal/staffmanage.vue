@@ -15,8 +15,7 @@
         :importUrl="Interface.importInterface"
         :exportUrl="Interface.exportInterface"
         :operateBtn="operateBtn"
-        @editRowEvent="editRowEvent"
-        @removeRowEvent="removeRowEvent"
+        @operateRowBtnEvent="operateRowBtnEvent"
         @toolbar-button-click="toolbarButtonClick"
         @cell-dbclick="cellDbClick"
         ref="mkGrid"
@@ -546,7 +545,17 @@ export default {
       //工具栏右侧自定义按钮目前只有导入 导出
       toolbarRight: { import: "1", export: "1", print: "0" },
       //table 行操作列按钮
-      operateBtn: ["edit", "del"],
+      operateBtn: [{
+        code:'edit',
+        name:'编辑',
+        icon:'fa fa-edit',
+        circle:true
+      },{
+        code:'del',
+        name:'删除',
+        icon:'fa fa-trash',
+        circle:true
+      },],
       //table数据接口地址 导入 导出接口地址
       Interface: {
         tableInterface: "/Publics/MemberManage/Portal/ExamMemberInfo",
@@ -555,8 +564,8 @@ export default {
       },
       //附加参数
       parameter: {
-        orgid:9,
-        contractid:7,
+        orgid:'',
+        contractid:'',
         deptname:[],
         jobstatus:[],
         position:[],
@@ -566,7 +575,10 @@ export default {
         hospitalid:''
       },
       //导入附加参数
-      importParame: {},
+      importParame: {
+        orgid:'',
+        orgname:''
+      },
       tableColumn:[
         { field: '合同编号', title: '合同编号',showOverflow: true,showHeaderOverflow: true },
         { field: '套餐名称', title: '体检套餐',  showOverflow: true,showHeaderOverflow: true },
@@ -580,12 +592,19 @@ export default {
   computed: {
      ...mapState('d2admin/size', [
 				'value'
+      ]),
+        ...mapState('d2admin/user', [
+				'info'
 			])
   },
   watch: {},
   //如果页面有keep-alive缓存功能，这个函数会触发
   activated() {},
   created() {
+   this.parameter.orgid = this.info.orgid;
+   this.parameter.contractid = this.info.contractid;
+   this.importParame.orgid = this.info.orgid;
+   this.importParame.orgname = this.info.orgname;
     // this.$refs.mkGrid.reload();
   },
   methods: {
@@ -596,8 +615,8 @@ export default {
     //重置
     reset(){
       this.parameter = {
-        orgid:9,
-        contractid:7,
+        orgid:this.info.orgid,
+        contractid:this.info.contractid,
         deptname:[],
         jobstatus:[],
         position:[],
@@ -612,6 +631,18 @@ export default {
     },
     deptChange(){
       this.reload();
+    },
+    operateRowBtnEvent({code,row}){
+      switch (code) {
+        case 'edit':
+          this.editRowEvent(row);
+          break;
+        case 'del':
+          this.del(row);
+        break;
+        default:
+          break;
+      }
     },
     editRowEvent(row){
       this.curClickRow= row;

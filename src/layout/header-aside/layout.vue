@@ -11,6 +11,10 @@
           :class="{'logo-group': true, 'logo-transition': asideTransition}"
           :style="{width: asideCollapse ? asideWidthCollapse : asideWidth}"
           flex-box="0">
+          
+          <span v-if="asideCollapse" style="height:60px;">
+             {{info.appname}} 
+          </span>
           <!-- <img v-if="asideCollapse" :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/icon-only.png`">
           <img v-else :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/all.png`"> -->
         </router-link>
@@ -21,9 +25,10 @@
         <div flex="cross:center" class="d2-theme-header-menu" flex-box="1">
           <div flex-box="1" flex="true" class="d2-theme-header-menu__content">
             <div flex-box="0" class="d2-theme-header-menu__scroll" >
-              <div style="color:#BFCBD9;font-size:24px;">
-                {{info.appname}} 
-                {{info.wgname}}
+              <div style="color:#BFCBD9;">
+                <span style="font-size:24px;">{{info.orgname}}</span>
+                <!-- {{info.appname}} 
+                {{info.wgname}} -->
               </div>
             </div>
             </div>

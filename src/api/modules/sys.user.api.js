@@ -9,5 +9,12 @@ export default ({ service, request, serviceForMock, requestForMock, mock, faker,
       method: 'post',
       data
     })
+  },
+  SYS_Portal_Info_Get(query = {}){
+    return request({
+      url: '/Publics/MemberManage/Portal/PortalGetPortalInfoByUserID_get',
+      method: 'get',
+      params: query
+    })
   }
 })

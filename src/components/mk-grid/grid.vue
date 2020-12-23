@@ -1,4 +1,5 @@
 <template>
+	
 	<div style="height: 100%;overflow: hidden;">
 		<vxe-grid ref="xGrid" v-bind="newGridData" @cell-click="cellClick" @cell-dblclick="cellDblclick" @checkbox-change="checkboxChange" @checkbox-all="checkboxAll">
 			<!--将表单放在工具栏中-->
@@ -14,9 +15,15 @@
 			</template>
 			<!--操作列-->
 			<template v-slot:operate="{ row }">
-				<vxe-button icon="fa fa-edit" title="编辑" v-if="operateBtn.includes('edit')" circle @click="editRowEvent(row)"></vxe-button>
+				<!-- <slot name="operate" :row="row"></slot> -->
+				<vxe-button :icon="`${item.circle ? item.icon : ''}`" :title="item.name" v-for="(item,index) in operateBtn" :key="index"  :circle="item.circle ? true : false" @click="operRowEvent({code:item.code,row})">
+					<span v-if="!item.circle">
+						{{item.name}}
+					</span>
+				</vxe-button>
+				<!-- <vxe-button icon="fa fa-edit" title="编辑" v-if="operateBtn.includes('edit')" circle @click="editRowEvent(row)"></vxe-button>
 				<vxe-button icon="fa fa-trash" title="删除" v-if="operateBtn.includes('del')" circle @click="removeRowEvent(row)"></vxe-button>
-				<vxe-button icon="fa fa-eye" title="查看" v-if="operateBtn.includes('look')" circle @click="lookRowEvent(row)"></vxe-button>
+				<vxe-button icon="fa fa-eye" title="查看" v-if="operateBtn.includes('look')" circle @click="lookRowEvent(row)"></vxe-button> -->
 			</template>
 			<!--自定义空数据模板-->
 			<template v-slot:empty>
@@ -482,6 +489,10 @@ import log from '@/libs/util.log'
 			//新增
 			add(){
 				this.$refs.dialogForm.show('add');
+			},
+			//操作列点击事件
+			operRowEvent(row){
+				this.$emit('operateRowBtnEvent',row)
 			},
 			//编辑
 			editRowEvent(row){

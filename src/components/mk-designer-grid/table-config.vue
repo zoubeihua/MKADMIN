@@ -771,6 +771,16 @@
 								})
 							}	
 							
+						}else{
+							const { queryWidgetForm, addWidgetForm, modifyWidgetForm } = this.modelFromConfig;
+							resolve({
+									code:0,
+									WidgetForm:{
+										queryWidgetForm,
+										addWidgetForm,
+										modifyWidgetForm
+									}
+								})
 						}
 						
 					}

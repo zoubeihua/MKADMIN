@@ -14,7 +14,8 @@ import pluginImport from '@d2-projects/vue-table-import'
 // store
 import store from '@/store/index'
 
-import router, { constantRoutes } from './router'
+// 菜单和路由设置
+import router from '@/router'
 
 import dataStandardDic from '@/minxins/dataStandardDic'
 import pageStatus from "@/minxins/pagestatus.js";
@@ -37,7 +38,7 @@ new Vue({
   render: h => h(App),
   created () {
     // 处理路由 得到每一级的路由设置
-    this.$store.commit('d2admin/page/init', constantRoutes)
+    // this.$store.commit('d2admin/page/init', constantRoutes)
     // 设置顶栏菜单
     // this.$store.commit('d2admin/menu/headerSet', menuHeader)
     // 初始化菜单搜索功能
