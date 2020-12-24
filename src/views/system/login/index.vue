@@ -9,7 +9,7 @@
     <div class="page-login--layer">
       <div class="page-login--content" flex="dir:top main:justify cross:stretch box:justify">
         <div class="page-login--content-header">
-          <p class="page-login--content-header-motto">时间是一切财富中最宝贵的财富</p>
+          <p class="page-login--content-header-motto"></p>
         </div>
         <div class="page-login--content-main" flex="dir:top main:center cross:center">
           <!-- logo 会员管理 -->
@@ -178,7 +178,6 @@ export default {
     },
     //获取验证码
     VerifyCode_Get() {
-      console.log( this.MK)
       this.MK.Request("/Publics/Common/VerifyCode", "get", {}).then(res => {
         if (res.code == 0) {
           let data = res.data;

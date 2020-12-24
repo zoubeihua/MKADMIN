@@ -119,7 +119,7 @@
 							   	   </vxe-radio-group>
 							   	</template>
 							   </vxe-form-item>
-							   <vxe-form-item title="是否启用列编辑" field="edit" span="24" v-if="operateData.isOperate == 1">
+							   <!-- <vxe-form-item title="是否启用列编辑" field="edit" span="24" v-if="operateData.isOperate == 1">
 									<template v-slot>
 									   <vxe-radio-group v-model="operateData.edit">
 										<vxe-radio label="1">是</vxe-radio>
@@ -142,7 +142,7 @@
 									<vxe-radio label="0">否</vxe-radio>
 								   </vxe-radio-group>
 								</template>
-							   </vxe-form-item>
+							   </vxe-form-item> -->
 						   </vxe-form>
 				  	  </el-scrollbar>
 				    </el-main>

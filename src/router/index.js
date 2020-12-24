@@ -92,6 +92,7 @@ let fetchPermissionInfo = async () => {
     buttonAccss = userPermissionInfo.dataButtonAccess
     // permissionRouter = filterAsyncRouter([...userPermissionInfo.dataRoute, ...testProject])
     permissionRouter = filterAsyncRouter([...userPermissionInfo.dataRoute])
+
     //动态添加路由
 	router.addRoutes(permissionRouter);
 	// console.log("路由数据：", permissionRouter)

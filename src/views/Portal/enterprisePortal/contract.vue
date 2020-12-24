@@ -15,20 +15,20 @@
       :importUrl="Interface.importInterface"
       :exportUrl="Interface.exportInterface"
       :operateBtn="operateBtn"
-       @cell-dbclick="cellDbClick"
+       @cell-click="cellDbClick"
       ref="mkGrid"
     >
 	<template slot="toolbarLeft">
 		 <query-form @query="reload" @reset="reset">
 			<el-form :inline="true" >
 				<el-form-item >
-           			<el-input v-model="parameter.condition" placeholder="按合同编号、名称查询" style="width:300px;"></el-input>
+           			<el-input v-model="parameter.condition" placeholder="按合同编号、名称查询" style="width:260px;"></el-input>
         		</el-form-item>
 			</el-form>
 			<template slot="detail">
         <el-form :inline="true" >
           <el-form-item >
-              <el-input v-model="parameter.condition" placeholder="按合同编号、名称查询" style="width:300px;"></el-input>
+              <el-input v-model="parameter.condition" placeholder="按合同编号、名称查询" style="width:260px;"></el-input>
             </el-form-item>
           </el-form>
 			</template>
@@ -46,6 +46,8 @@
             align="center"
             :autoResize="true"
             :columns="tableColumn"
+            :footer-method="footerMethod"
+            :showFooter="true"
             :data="examData">
           </vxe-grid>
        </template>
@@ -54,6 +56,7 @@
   </d2-container>
 </template>	
 <script>
+import { sum } from 'xe-utils';
 import { mapState } from 'vuex'
 import MGrid from "@/components/mk-grid/grid"
 import QueryForm from "@/components/mk-grid/queryform"
@@ -114,7 +117,7 @@ export default {
           },
           {
             seq: null,
-            title: "有效期",
+            title: "生效日期",
             width: null,
             visible: true,
             resizable: null,
@@ -239,8 +242,7 @@ export default {
        tableColumn:[
           { field: '套餐名称', title: '套餐名称',showOverflow: true,showHeaderOverflow: true },
           { field: '适应性别', title: '适应性别',showOverflow: true,showHeaderOverflow: true },
-          { field: '适应年龄', title: '年龄下限',showOverflow: true,showHeaderOverflow: true },
-          { field: '套餐名称', title: '套餐类型',showOverflow: true,showHeaderOverflow: true },
+          { field: '适应年龄', title: '适应年龄',showOverflow: true,showHeaderOverflow: true },
           { field: '套餐价格', title: '套餐价格',showOverflow: true,showHeaderOverflow: true }
 
       ],
@@ -319,6 +321,19 @@ export default {
           console.log(this.examData);
         }
       })
+    },
+    footerMethod ({ columns, data }) {
+      return [
+        columns.map((column, columnIndex) => {
+          if (columnIndex === 0) {
+            return '汇总'
+          }
+          if (['套餐价格'].includes(column.property)) {
+            return sum(data, column.property)
+          }
+          return null
+        })
+      ]
     },
   },
   mounted() {},

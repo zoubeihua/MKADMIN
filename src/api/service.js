@@ -110,7 +110,6 @@ function createService() {
           ...config.params
         }
         config.paramsSerializer = function (params) {
-          console.log(params)
           let paramsdata = removeEmptyObjects(params);
           return qs.stringify(paramsdata,{ arrayFormat: 'repeat' })
         }

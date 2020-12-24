@@ -26,6 +26,8 @@
          <el-form :inline="true" >
             <el-form-item label="">
             <mk-select
+             collapse-tags
+             style="width:8vw;"
             placeholder="请选择部门"
               v-model="parameter.deptname"
               :multiple="true"
@@ -40,6 +42,8 @@
         </el-form-item>
         <el-form-item label="">
            <mk-select
+            collapse-tags
+             style="width:8vw;"
               placeholder="请选择职务"
               v-model="parameter.position"
               :multiple="true"
@@ -54,6 +58,8 @@
         </el-form-item>
          <el-form-item label="">
            <mk-select
+            collapse-tags
+            style="width:8vw;"
            placeholder="是否匹配套餐"
               v-model="parameter.ismatchpack"
               clear
@@ -66,7 +72,7 @@
         </mk-select>
         </el-form-item>
          <el-form-item >
-           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:300px;"></el-input>
+           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:260px;"></el-input>
         </el-form-item>
          </el-form>
        <template slot="detail">
@@ -173,6 +179,7 @@
               :autoResize="true"
               :columns="tableColumn"
               :checkbox-config="checkboxConfig"
+              @checkbox-change="RightcheckboxChange"
               :data="examData">
                <template v-slot:examData={row}>
                  <table>
@@ -448,7 +455,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "marriage",
+            field: "marriagename",
           },
           {
             seq: null,
@@ -491,7 +498,8 @@ export default {
         editRules: {},
         checkboxConfig:{
           highlight:true,
-          trigger:'row'
+          trigger:'row',
+          checkMethod:this.checkMethod
         },
         toolbar: {
           slots: { buttons: "toolbar_buttons", tools: "toolbar_right" },
@@ -571,13 +579,15 @@ export default {
       //导入附加参数
       importParame: {},
       tableColumn:[
-        {title: "全选",width: "80", visible: true, align: "left", type: "checkbox"},
+        {title: "",width: "80", visible: true, align: "left", type: "checkbox"},
         { field: '套餐ID', title: '体检套餐',slots:{default:'examData'} }
 
       ],
       checkboxConfig:{
         highlight:true,
-        trigger:'row'
+        trigger:'row',
+        checkStrictly: true,
+        checkMethod:this.RightCheckMethod
       },
       tableData:[],
       examData:[],
@@ -634,7 +644,11 @@ export default {
     },
     //
     checkMethod({row}){
-       return row.examcount == 0;
+       return row.examstatus < 1;
+    },
+    RightCheckMethod(){
+      let getLeftCheckboxRecords = this.$refs.mkGrid.xGrid().getCheckboxRecords();
+      return getLeftCheckboxRecords.length != 0;
     },
     sortArr(arr){
       var map = {},
@@ -700,8 +714,8 @@ export default {
           this.$XModal.message({ message: '请选择人员！', status: 'warning' });
           return false;
          };
-        if(getRightCheckboxRecords.length == 0){
-          this.$XModal.message({ message: '请选择套餐！', status: 'warning' });
+        if(getRightCheckboxRecords.length > 2 ){
+          this.$XModal.message({ message: '只能选择两个套餐', status: 'warning' });
           return false;
         };
         return {
@@ -711,51 +725,56 @@ export default {
     },
     //table left checkbox 勾选触发
     checkboxChange({records,row,checked}){
-        // console.log(uniq([11, 22, 33, 33, 22, 55]));
-        var arr = []
-        var findKeyArr = [];
-        if(row.choosepackageID != ''){
-            var mapArr = records.map(item => {
-              return {
-                choosepackageID:item.choosepackageID.split(',')
-              }
-            })
-              mapArr.forEach(item => {
-                if(item.choosepackageID.length){
-                  item.choosepackageID.forEach(key => {
-                     arr.push(key)
-                  })
-                  
-                }
-              })
-            findKeyArr = uniq(arr);
-            this.rightcheckHandel(findKeyArr,checked)
-        }else{
-            this.rightcheckHandel([],checked)
-        }
-      
-
+      let findKeyArr = this.getChoosepackageID(records);
+      this.rightcheckHandel(findKeyArr);
     },
     //table left checkboxAll 全选触发
     checkboxAll({records}){
+      let findKeyArr = this.getChoosepackageID(records);
+      this.rightcheckHandel(findKeyArr);
+    },
+    //table right checkbox
+    RightcheckboxChange({records}){
+   
 
+    },
+    getIndex(data,id){
+      return data.findIndex(item => item.套餐ID == id);
+    },
+    getChoosepackageID(records){
+      var arr = []
+        var findKeyArr = [];
+        var mapArr = records.map(item => {
+          return {
+            choosepackageID: item.choosepackageID != null ? item.choosepackageID.split(',') : []
+          }
+        })
+          mapArr.forEach(item => {
+            if(item.choosepackageID.length){
+              item.choosepackageID.forEach(key => {
+                  arr.push(key)
+              })
+              
+            }
+          })
+        findKeyArr = uniq(arr);
+        return findKeyArr;
+       
     },
     //设置table行选中
     setCheckboxRow(el,row,checked){
       this.$refs[el].setCheckboxRow([row], checked)
       // this.$refs[el].toggleCheckboxRow(row)
     },
-    rightcheckHandel(data,checked){
+    rightcheckHandel(data){
        var getRightData= this.examData;
-      
+       this.$refs['rightGrid'].clearCheckboxRow();
       if(data.length){
         data.forEach(key => {
            let findRow = getRightData.find(item => item.套餐ID.toString().includes(key) == true);
            this.setCheckboxRow('rightGrid',findRow,true)
         })
        
-      }else{  
-         this.$refs['rightGrid'].clearCheckboxRow();
       }
     },
     //关联套餐

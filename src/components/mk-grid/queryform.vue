@@ -1,9 +1,9 @@
 <template>
-	<div style="display: flex;position: relative;margin-top:5px;margin-right: 10px;">
-		<div style="padding:0 10px;flex:1;" class="toolForm">
+	<div style="display: flex;position: relative;5px;margin-right: 10px;">
+		<div style="padding:5px 10px 0 10px;flex:1;" class="toolForm">
 			<slot></slot>
 		</div>
-		<div class="el-dropdown">
+		<div class="el-dropdown dropdowH">
 			<div class="el-button-group group">
 					<el-button type="primary"  @click="query">
 						查询
@@ -96,6 +96,11 @@
 	}
 .toolForm ::v-deep .fm-form-item .el-form-item{
 	    margin-bottom: 5px !important;
+}
+
+::v-deep .dropdowH{
+	display:flex !important;
+	align-items: center !important;
 }
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;

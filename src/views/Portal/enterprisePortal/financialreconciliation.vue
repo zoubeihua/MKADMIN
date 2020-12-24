@@ -20,7 +20,7 @@
 		 <query-form @query="reload" @reset="reset">
 			<el-form :inline="true" >
 				<el-form-item >
-           			<el-input v-model="parameter.condition" placeholder="按合同编号、名称查询" style="width:300px;"></el-input>
+           			<el-input v-model="parameter.condition" placeholder="按合同编号、名称查询" style="width:260px;"></el-input>
         		</el-form-item>
 			</el-form>
 		 </query-form>
@@ -67,8 +67,8 @@
         <el-main>
           <m-grid
       :option.sync="bottomOption"
-      :toolButtos="[{name:'通过'},{name:'拒绝'},{name:'撤销'}]"
-     
+      :toolButtos="[{name:'通过',code:'tg'},{name:'拒绝',code:'jj'},{name:'撤销',code:'cx'}]"
+      @toolbar-button-click="toolbarButtonClick"
       :tableData="bottomTableData"
       ref="mkGrid"
     >
@@ -88,21 +88,29 @@
         <table class="tableS">
             <tr>
               <th>收款帐户</th>
-              <td></td>
+              <td><vxe-input style="width:100%"></vxe-input></td>
             </tr>
              <tr>
               <th>发票抬头</th>
-              <td>上海睦康信息技术有限公司</td>
+              <td><vxe-input value="上海睦康信息技术有限公司" style="width:100%"></vxe-input></td>
             </tr>
              <tr>
               <th>识别号</th>
-              <td>36020011114444455555</td>
+              <td><vxe-input value="36020011114444455555" style="width:100%"></vxe-input></td>
             </tr>
              <tr>
               <th>发票内容</th>
-              <td>抬头、内容</td>
+              <td><vxe-input value="抬头、内容" style="width:100%"></vxe-input></td>
             </tr>
           </table>
+            <vxe-form>
+              <vxe-form-item align="center" span="24">
+              <template v-slot>
+                <vxe-button  status="primary" @click="kphdModel = false">提交</vxe-button>
+                <vxe-button @click="kphdModel = false">取消</vxe-button>
+              </template>
+          </vxe-form-item>
+           </vxe-form>
      </vxe-modal>
      <vxe-modal v-model="zfpzModel" title="  支付凭证" width="500" height="auto" >
         <table class="tableS">
@@ -135,6 +143,34 @@
               <td></td>
             </tr>
           </table>
+           <vxe-form>
+              <vxe-form-item align="center" span="24">
+              <template v-slot>
+                <vxe-button  status="primary" @click="zfpzModel = false">提交</vxe-button>
+                <vxe-button @click="zfpzModel = false">取消</vxe-button>
+              </template>
+          </vxe-form-item>
+           </vxe-form>
+     </vxe-modal>
+      <vxe-modal v-model="jjModel" title="拒绝原因" width="500" height="auto" >
+         <vxe-form>
+            <vxe-form-item  field="name" span="24" >
+              <template v-slot>
+                <el-input
+                  type="textarea"
+                  resize="none"
+                  :rows="6"
+                  placeholder="请输入拒绝原因">
+                </el-input>
+              </template>
+            </vxe-form-item>
+            <vxe-form-item align="center" span="24">
+              <template v-slot>
+                <vxe-button  status="primary" @click="jjModel = false">提交</vxe-button>
+                <vxe-button @click="jjModel = false">取消</vxe-button>
+              </template>
+          </vxe-form-item>
+         </vxe-form>
      </vxe-modal>
   </d2-container>
 </template>	
@@ -142,6 +178,7 @@
 		<script>
     import MGrid from "@/components/mk-grid/grid"
 import QueryForm from "@/components/mk-grid/queryform"
+import { sum } from 'xe-utils';
 export default {
   name: "",
    components:{
@@ -153,6 +190,7 @@ export default {
       hdzdModel:false,
       kphdModel:false,
       zfpzModel:false,
+      jjModel:false,
       //table 配置项
       gridOption: {
         columns: [
@@ -299,6 +337,8 @@ export default {
           zoom: true,
           custom: true,
         },
+        footerMethod:this.footerMethod,
+        showFooter:true
       },
       bottomOption:{
         columns:[
@@ -373,8 +413,23 @@ export default {
             is_modify: null,
             is_add: null,
             fieldtype: null,
-            slots: {},
             field: "djpz",
+            slots: { 
+               // 使用渲染函数
+              default: ({ row }, h) => {
+                return [
+                  h('span', {
+                    style: {
+                      color: 'blue',
+                      cursor: 'pointer'
+                    },
+                    on: {
+                      click: () => this.djpzClickEvent(row)
+                    }
+                  }, row.djpz)
+                ]
+              }
+             }
           },
            {
             seq: null,
@@ -660,6 +715,32 @@ export default {
     // this.$refs.mkGrid.reload();
   },
   methods: {
+     footerMethod ({ columns, data }) {
+      return [
+        columns.map((column, columnIndex) => {
+          if (columnIndex === 0) {
+            return '汇总'
+          }
+          if (['发票金额'].includes(column.property)) {
+            return sum(data, column.property)
+          }
+          return null
+        })
+      ]
+    },
+    toolbarButtonClick(code){
+      switch (code) {
+        case 'jj':
+            this.jj();
+          break;
+      
+        default:
+          break;
+      }
+    },
+    jj(){
+      this.jjModel = true;
+    },
     getData(){
       let data = {
         合同编号:'',
@@ -717,6 +798,12 @@ export default {
     },
     zfpz(){
       this.zfpzModel = true;
+    },
+    //到检凭证
+    djpzClickEvent(row){
+      this.$mkImgPreview({
+        url:`${this.$baseUrl}image/djpz.png`
+      })
     },
     reload(){
 

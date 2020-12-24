@@ -17,7 +17,8 @@
         :operateBtn="operateBtn"
         @operateRowBtnEvent="operateRowBtnEvent"
         @toolbar-button-click="toolbarButtonClick"
-        @cell-dbclick="cellDbClick"
+        @cell-click="cellDbClick"
+        @importSuccess="reload"
         ref="mkGrid"
     >
     <template slot="toolbarLeft">
@@ -25,6 +26,8 @@
          <el-form :inline="true" >
             <el-form-item label="">
             <mk-select
+            collapse-tags
+            style="width:8vw;"
             placeholder="请选择部门"
               v-model="parameter.deptname"
               :multiple="true"
@@ -39,6 +42,8 @@
         </el-form-item>
         <el-form-item label="">
            <mk-select
+            collapse-tags
+            style="width:8vw;"
               placeholder="请选择职务"
               v-model="parameter.position"
               :multiple="true"
@@ -53,6 +58,8 @@
         </el-form-item>
          <el-form-item label="">
            <mk-select
+            collapse-tags
+            style="width:8vw;"
            placeholder="请选择在职状态"
               v-model="parameter.jobstatus"
               :multiple="true"
@@ -63,6 +70,9 @@
               filter="statusname"
           >
         </mk-select>
+        </el-form-item>
+        <el-form-item >
+           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:260px;"></el-input>
         </el-form-item>
          </el-form>
        <template slot="detail">
@@ -125,7 +135,7 @@
              <el-input-number v-model="parameter.examcount" placeholder="体检次数大于" controls-position="right" @change="reload" :min="0"></el-input-number>
         </el-form-item>
          <el-form-item >
-           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:300px;"></el-input>
+           <el-input v-model="parameter.condition" placeholder="按员工姓名（首拼）、联系电话查询" style="width:260px;"></el-input>
         </el-form-item>
       </el-form>
        </template>
@@ -154,32 +164,32 @@
           <vxe-form-item title="基本信息" span="24" title-align="left" title-width="200px" :title-prefix="{icon: 'fa fa-address-card-o'}"></vxe-form-item>
           <vxe-form-item title="员工姓名" field="name" span="8" >
             <template v-slot>
-              <el-input v-model="curClickRow.membername" :readonly="true"/>
+              <el-input v-model="curClickRow.membername" :disabled="true"/>
             </template>
           </vxe-form-item>
           <vxe-form-item title="员工性别" field="name" span="8" >
             <template v-slot>
-              <el-input v-model="curClickRow.sexname" :readonly="true"/>
+              <el-input v-model="curClickRow.sexname" :disabled="true"/>
             </template>
           </vxe-form-item>
            <vxe-form-item title="出生日期" field="name" span="8" >
             <template v-slot>
-              <el-input v-model="curClickRow.birthday" :readonly="true"/>
+              <el-input v-model="curClickRow.birthday" :disabled="true"/>
             </template>
           </vxe-form-item>
            <vxe-form-item title="证件类型" field="name" span="8" >
             <template v-slot>
-              <el-input v-model="curClickRow.idtypename" :readonly="true"/>
+              <el-input v-model="curClickRow.idtypename" :disabled="true"/>
             </template>
           </vxe-form-item>
           <vxe-form-item title="证件编号" field="name" span="8" >
             <template v-slot>
-              <el-input v-model="curClickRow.idnumber" :readonly="true"/>
+              <el-input v-model="curClickRow.idnumber" :disabled="true"/>
             </template>
           </vxe-form-item>
            <vxe-form-item title="是否家属" field="name" span="8" >
             <template v-slot>
-              <el-input v-model="curClickRow.familyname" :readonly="true"/>
+              <el-input v-model="curClickRow.familyname" :disabled="true"/>
             </template>
           </vxe-form-item>
           <vxe-form-item title="其他信息" span="24" title-align="left" title-width="200px" :title-prefix="{icon: 'fa fa-info-circle'}"></vxe-form-item>
@@ -293,8 +303,7 @@ export default {
           {
             seq: null,
             title: "操作",
-            width: null,
-            visible: true,
+            width: 160,
             resizable: null,
             align: "center",
             remoteSort: false,
@@ -439,7 +448,7 @@ export default {
             is_add: null,
             fieldtype: null,
             slots: {},
-            field: "marriage",
+            field: "marriagename",
           },
           {
             seq: null,
@@ -547,14 +556,10 @@ export default {
       //table 行操作列按钮
       operateBtn: [{
         code:'edit',
-        name:'编辑',
-        icon:'fa fa-edit',
-        circle:true
+        name:'编辑'
       },{
         code:'del',
-        name:'删除',
-        icon:'fa fa-trash',
-        circle:true
+        name:'删除'
       },],
       //table数据接口地址 导入 导出接口地址
       Interface: {

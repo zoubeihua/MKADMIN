@@ -71,6 +71,7 @@
         style="width: 380px; margin: 0 auto"
         drag
         action="#"
+        :show-file-list="false"
         :http-request="httpRequest"
         multiple
       >
@@ -160,7 +161,8 @@ export default {
           }).then((res) => {
             if (res.code == 0) {
               this.$message.success(`文件上传成功，${res.msg}`);
-              this.MemberInfo_Get();
+              this.$emit('on-success')
+              this.importModal = false;
             }
           });
         });

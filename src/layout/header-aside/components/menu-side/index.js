@@ -15,6 +15,7 @@ export default {
           collapseTransition={ this.asideTransition }
           uniqueOpened={ true }
           defaultActive={ this.$route.fullPath }
+          defaultOpeneds={this.defaultPath}
           ref="menu"
           onSelect={ this.handleMenuSelect }>
           { this.aside.map(menu => createMenu.call(this, h, menu)) }
@@ -35,6 +36,13 @@ export default {
       'aside',
       'asideCollapse',
       'asideTransition'
-    ])
+    ]),
+    defaultPath(){
+      if(this.aside.length){
+        return [this.aside[0].path]
+      }else{
+        return [];
+      }
+    }
   }
 }

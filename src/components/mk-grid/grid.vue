@@ -6,7 +6,7 @@
 			<template v-slot:toolbar_buttons>
 					<div style="display: flex;align-items: center;" class="toolbarFrom">
 						<slot name="toolbarLeft" />
-						<el-button v-for="(item,index) in toolButtos" :key="index" @click="toolbarButtonClick(item.code)">{{item.name}}</el-button>
+						<el-button type="primary" v-for="(item,index) in toolButtos" :key="index" @click="toolbarButtonClick(item.code)">{{item.name}}</el-button>
 					</div>
 			</template>
 			<!--工具栏右边按钮-->
@@ -33,7 +33,7 @@
 			</template>
 		</vxe-grid>
 		<!-- <dialog-form ref="dialogForm"></dialog-form> -->
-		<import-data ref="ImportData" :parameter="importParame" :url="importUrl"></import-data>
+		<import-data ref="ImportData" :parameter="importParame" :url="importUrl" @on-success="onSuccess"></import-data>
 	</div>
 </template>
 
@@ -287,8 +287,8 @@ import log from '@/libs/util.log'
 					},
 					pagerConfig: {
 						layouts: ['Sizes', 'PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'FullJump', 'Total'],
-						pageSize: 20,
-						pageSizes: [5, 10, 15, 20, 50, 100, 200, 500, 1000],
+						pageSize: 60,
+						pageSizes: [5, 10, 15, 20, 60, 100, 200, 500, 1000],
 						perfect:true
 					},
 					proxyConfig: {
@@ -339,7 +339,7 @@ import log from '@/libs/util.log'
 			}
 		},
 		created() {
-
+			console.log(this.newGridData)
 			// this.setRowDicVal();
 		},
 		updated(){
@@ -349,6 +349,9 @@ import log from '@/libs/util.log'
 			})
 		},
 		methods: {
+			onSuccess(){
+				this.$emit('importSuccess')
+			},
 			xGrid(){
 				return this.$refs.xGrid
 			},
